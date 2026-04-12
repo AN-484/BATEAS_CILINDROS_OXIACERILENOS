@@ -13,6 +13,7 @@ class Acceso(Base):
 class Usuario(Base):
     __tablename__ = "usuarios"
     codigo = Column(String, primary_key=True)
+    dni = Column(String(8), unique=True, nullable=False)
     nombre = Column(String)
     cargo = Column(String)
 

@@ -10,6 +10,8 @@ from PySide6.QtCore import QDate
 
 from ui.selector_cilindro_ui import SelectorCilindroUI
 
+from session import get_usuario
+
 class FuncDespachoRecepcionUI(QWidget):
     def __init__(self):
         super().__init__()
@@ -40,7 +42,24 @@ class FuncDespachoRecepcionUI(QWidget):
 
         self.area = QComboBox()
         self.encargado = QComboBox()
-        self.registrado = QComboBox()
+        self.registrado = QLineEdit()
+        self.registrado.setReadOnly(True)
+
+        usuario_actual = get_usuario()
+
+        if usuario_actual:
+            self.registrado.setText(
+                #f"{usuario_actual.codigo} - {usuario_actual.nombre}"
+                f"{usuario_actual.nombre}"
+            )
+        self.usuario.setStyleSheet("""
+            QLineEdit {
+                background-color: #E9ECEF;
+                color: #495057;
+                border: 1px solid #CED4DA;
+                font-weight: bold;
+            }
+        """)
 
         self.responsable = QLineEdit()
 
@@ -110,9 +129,11 @@ class FuncDespachoRecepcionUI(QWidget):
             for u in db.query(Ubicacion).all():
                 self.area.addItem(u.nombre, u.codigo)
 
+            #for u in db.query(Usuario).all():
+            #    self.encargado.addItem(u.nombre, u.codigo)
+            #    self.registrado.addItem(u.nombre, u.codigo)
             for u in db.query(Usuario).all():
                 self.encargado.addItem(u.nombre, u.codigo)
-                self.registrado.addItem(u.nombre, u.codigo)
 
             for p in db.query(Producto).all():
                 self.material.addItem(p.nombre, p.codigo)
@@ -145,9 +166,9 @@ class FuncDespachoRecepcionUI(QWidget):
             QMessageBox.warning(self, "Error", "Ingrese responsable del área")
             return
         
-        if not self.registrado.currentData():
-            QMessageBox.warning(self, "Error", "Seleccione quién registra")
-            return
+        #if not self.registrado.currentData():
+        #    QMessageBox.warning(self, "Error", "Seleccione quién registra")
+        #    return
 
         db = SessionLocal()
         
@@ -166,6 +187,7 @@ class FuncDespachoRecepcionUI(QWidget):
             from models import Cilindro
             cilindro_obj = db.query(Cilindro).filter_by(codigo=cilindro).first()
             propietario = cilindro_obj.propietario if cilindro_obj else None
+            usuario_actual = get_usuario()
 
             nuevo = MovimientoDetalle(
                 id=str(datetime.now().timestamp()),
@@ -176,7 +198,7 @@ class FuncDespachoRecepcionUI(QWidget):
                 tipo = self.tipo,
                 encargado_almacen=self.encargado.currentData(),
                 responsable_area=self.responsable.text(),
-                registrado_por=self.registrado.currentData()
+                registrado_por=usuario_actual.codigo
             )
 
             db.add(nuevo)
@@ -231,7 +253,12 @@ class FuncDespachoRecepcionUI(QWidget):
         self.area.setCurrentIndex(0)
         self.area.setEnabled(True)  # Habilitar área nuevamente
         self.encargado.setCurrentIndex(0)
-        self.registrado.setCurrentIndex(0)
+        usuario_actual = get_usuario()
+
+        if usuario_actual:
+            self.registrado.setText(
+                f"{usuario_actual.codigo} - {usuario_actual.nombre}"
+            )
         self.fecha.setDate(QDate.currentDate())
         self.indicador.setText("●")
         self.indicador.setStyleSheet("font-size: 20px; color: gray;")

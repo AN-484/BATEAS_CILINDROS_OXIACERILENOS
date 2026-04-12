@@ -5,6 +5,6 @@ cursor = conn.cursor()
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
 print(cursor.fetchall())
 # Consultar datos
-cursor.execute("SELECT * FROM cilindros")
+cursor.execute("SELECT * FROM estado_cilindros")
 print(cursor.fetchall())
 conn.close()

@@ -4,6 +4,7 @@ from database import SessionLocal
 from models import Transportista, Usuario, EntradaSalida, Cilindro, Producto, Propietario, EstadoCilindro
 from crud import actualizar_estado
 from ui.reportes.vale_pdf import generar_vale
+from session import get_usuario
 
 from ui.func_entrada_salida_ui_2 import *
 
@@ -49,8 +50,26 @@ class FuncEntradaSalidaUI(QWidget):
         self.cargar_transportistas()
 
         # 🔥 Usuarios desde BD
-        self.usuario = QComboBox()
-        self.cargar_usuarios()
+        ##self.usuario = QComboBox()
+        ##self.cargar_usuarios()
+        self.usuario = QLineEdit()
+        self.usuario.setReadOnly(True)
+
+        usuario_actual = get_usuario()
+
+        if usuario_actual:
+            self.usuario.setText(
+                #f"{usuario_actual.codigo} - {usuario_actual.nombre}"
+                f"{usuario_actual.nombre}"
+            )
+        self.usuario.setStyleSheet("""
+            QLineEdit {
+                background-color: #E9ECEF;
+                color: #495057;
+                border: 1px solid #CED4DA;
+                font-weight: bold;
+            }
+        """)
 
         self.movimiento = QComboBox()
         self.movimiento.addItems(["INGRESO", "RECARGA"])
@@ -85,7 +104,7 @@ class FuncEntradaSalidaUI(QWidget):
         finally:
             db.close()
 
-    def cargar_usuarios(self):
+    def cargar_usuarios(self):#####no es necesario ahora
         db = SessionLocal()
         try:
             data = db.query(Usuario).all()
@@ -139,9 +158,9 @@ class FuncEntradaSalidaUI(QWidget):
             QMessageBox.warning(self, "Error", "Seleccione transportista")
             return
         
-        if not self.usuario.currentData():
-            QMessageBox.warning(self, "Error", "Seleccione usuario (registrado por)")
-            return
+        #if not self.usuario.currentData():
+        #    QMessageBox.warning(self, "Error", "Seleccione usuario (registrado por)")
+        #    return
 
         db = SessionLocal()
         try:
@@ -169,6 +188,7 @@ class FuncEntradaSalidaUI(QWidget):
                 db.add(nuevo_cilindro)
 
             # registrar movimiento
+            usuario_actual = get_usuario()
             nuevo = EntradaSalida(
                 id=str(datetime.now().timestamp()),
                 #fecha=datetime.now(),
@@ -179,7 +199,7 @@ class FuncEntradaSalidaUI(QWidget):
                 cod_transportista=self.transportista.currentData(),
                 transportista=self.transportista.currentData(),
                 tipo=movimiento,
-                registrado_por=self.usuario.currentData()
+                registrado_por = usuario_actual.codigo
             )
 
             db.add(nuevo)
@@ -206,11 +226,12 @@ class FuncEntradaSalidaUI(QWidget):
 
             # generar vale (solo si está marcado el checkbox)
             if self.generar_vale.isChecked():
+                usuario_actual = get_usuario()
                 data_vale = {
                     "Tipo": movimiento,
                     "Guía": self.guia.text(),
                     "Transportista": self.transportista.currentText(),
-                    "Registrado por": self.usuario.currentText()
+                    "Registrado por": usuario_actual.nombre
                 }
 
                 generar_vale(data_vale, f"vale_{self.guia.text()}.pdf", generar_pdf=True)
@@ -230,7 +251,11 @@ class FuncEntradaSalidaUI(QWidget):
         self.propietario.setCurrentIndex(0)
         self.producto.setCurrentIndex(0)
         self.transportista.setCurrentIndex(0)
-        self.usuario.setCurrentIndex(0)
+        usuario_actual = get_usuario()
+        if usuario_actual:
+            self.usuario.setText(
+                f"{usuario_actual.codigo} - {usuario_actual.nombre}"
+            )
         self.movimiento.setCurrentIndex(0)
         self.fecha.setDate(QDate.currentDate())
         self.fecha_hidro.setDate(QDate.currentDate())

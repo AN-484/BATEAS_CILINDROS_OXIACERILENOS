@@ -6,20 +6,20 @@ def seed():
 
     # 🧑 USUARIOS (PERSONAL)
     usuarios = [
-        Usuario(codigo="P001", nombre="CESAR RAMIREZ MALDONADO", cargo="Supervisor"),
-        Usuario(codigo="P002", nombre="MIGUEL BENITES ", cargo="Asistente"),
-        Usuario(codigo="P003", nombre="BERNARDO CAYLLAHUE", cargo="Operario"),
-        Usuario(codigo="P004", nombre="CLAUDIO SISA", cargo="Auxiliar 1"),
-        Usuario(codigo="P005", nombre="FREDDY CUTIPA CHURA", cargo="Auxiliar 2"),
-        Usuario(codigo="P006", nombre="SANTOS LENGUANI QUISPE", cargo="Auxiliar 1"),
-        Usuario(codigo="P007", nombre="ANGEL CHOQUE", cargo="Auxiliar 1"),
-        Usuario(codigo="P008", nombre="WALTER SUNI", cargo="Auxiliar 2"),
-        Usuario(codigo="P009", nombre="RONAL VALENCIA QUISPE", cargo="Auxiliar 2"),
-        Usuario(codigo="P010", nombre="SEBASTIAN MAYHUA", cargo="Bodeguero"),
-        Usuario(codigo="P011", nombre="JOSE QUISPE", cargo="Bodeguero"),
-        Usuario(codigo="P012", nombre="SANTIAGO CUYO CCAPA", cargo="Bodeguero"),
-        Usuario(codigo="P013", nombre="ALDAIR DIAZ", cargo="Auxiliar 2"),
-        Usuario(codigo="P014", nombre="MANUEL NIFLA LL", cargo="Practicante"),
+        Usuario(codigo="P001",dni="40500778", nombre="CESAR RAMIREZ MALDONADO", cargo="Supervisor"),
+        Usuario(codigo="P002",dni="40780411", nombre="MIGUEL BENITES ", cargo="Asistente"),
+        Usuario(codigo="P003",dni="43180022", nombre="BERNARDO CAYLLAHUE", cargo="Operario"),
+        Usuario(codigo="P004",dni="40950681", nombre="CLAUDIO SISA", cargo="Auxiliar 1"),
+        Usuario(codigo="P005",dni="45167507", nombre="FREDDY CUTIPA CHURA", cargo="Auxiliar 2"),
+        Usuario(codigo="P006",dni="80385123", nombre="SANTOS LENGUANI QUISPE", cargo="Auxiliar 1"),
+        Usuario(codigo="P007",dni="41727399", nombre="ANGEL CHOQUE", cargo="Auxiliar 1"),
+        Usuario(codigo="P008",dni="72278030", nombre="WALTER SUNI", cargo="Auxiliar 2"),
+        Usuario(codigo="P009",dni="48058310", nombre="RONAL VALENCIA QUISPE", cargo="Auxiliar 2"),
+        Usuario(codigo="P010",dni="40858173", nombre="SEBASTIAN MAYHUA", cargo="Bodeguero"),
+        Usuario(codigo="P011",dni="02172614", nombre="JOSE QUISPE", cargo="Bodeguero"),
+        Usuario(codigo="P012",dni="24884512", nombre="SANTIAGO CUYO CCAPA", cargo="Bodeguero"),
+        Usuario(codigo="P013",dni="71784498", nombre="ALDAIR DIAZ", cargo="Auxiliar 2"),
+        Usuario(codigo="P014",dni="72029619", nombre="MANUEL NIFLA LL", cargo="Practicante"),
     ]
 
     # 📦 PRODUCTOS
@@ -55,6 +55,7 @@ def seed():
     # 📍 UBICACIONES
     ubicaciones = [
         Ubicacion(codigo="1001", nombre="SSOMA"),
+        Ubicacion(codigo="1101", nombre="PULSO"),
         Ubicacion(codigo="1002", nombre="Lab. Quimico"),
         Ubicacion(codigo="1003", nombre="Lab. Metalúrgico"),
         Ubicacion(codigo="1004", nombre="TIC"),

@@ -6,6 +6,7 @@ from models import Transportista, Usuario, EntradaSalida, Cilindro, Producto, Pr
 from crud import actualizar_estado
 from ui.reportes.vale_pdf import generar_vale
 from ui.func_entrada_salida_ui_2 import verificar_entrada_de_cilindro, verificar_salida_de_cilindro
+from session import get_usuario
 
 class EntradaSalidaMasivoUI(QWidget):
     def __init__(self):
@@ -30,7 +31,28 @@ class EntradaSalidaMasivoUI(QWidget):
         self.transportista = QComboBox()
         form_layout.addRow("Transportista:", self.transportista)
         
-        self.usuario = QComboBox()
+        ##self.usuario = QComboBox()
+        ##form_layout.addRow("Usuario (registrado por):", self.usuario)
+        self.usuario = QLineEdit()
+        self.usuario.setReadOnly(True)
+
+        usuario_actual = get_usuario()
+
+        if usuario_actual:
+            self.usuario.setText(
+                #f"{usuario_actual.codigo} - {usuario_actual.nombre}"
+                f"{usuario_actual.nombre}"
+            )
+        
+        self.usuario.setStyleSheet("""
+            QLineEdit {
+                background-color: #E9ECEF;
+                color: #495057;
+                border: 1px solid #CED4DA;
+                font-weight: bold;
+            }
+        """)
+
         form_layout.addRow("Usuario (registrado por):", self.usuario)
         
         fecha_layout = QHBoxLayout()
@@ -93,7 +115,7 @@ class EntradaSalidaMasivoUI(QWidget):
         
         # Cargar datos iniciales
         self.cargar_transportistas()
-        self.cargar_usuarios()
+        #self.cargar_usuarios()
         
         # Agregar primera fila vacía
         self.agregar_fila()
@@ -186,9 +208,9 @@ class EntradaSalidaMasivoUI(QWidget):
             QMessageBox.warning(self, "Error", "Seleccione transportista")
             return
         
-        if not self.usuario.currentData():
-            QMessageBox.warning(self, "Error", "Seleccione usuario")
-            return
+        #if not self.usuario.currentData():
+        #    QMessageBox.warning(self, "Error", "Seleccione usuario")
+        #    return
         
         if self.tabla.rowCount() == 0:
             QMessageBox.warning(self, "Error", "Agregue al menos un cilindro")
@@ -197,7 +219,8 @@ class EntradaSalidaMasivoUI(QWidget):
         movimiento = self.movimiento.currentText()
         guia = self.guia.text()
         transportista = self.transportista.currentData()
-        usuario = self.usuario.currentData()
+        usuario_actual = get_usuario()
+        usuario = usuario_actual.codigo
         fecha = self.fecha.date().toPython()
         
         # Validar que haya al menos una fila con datos
@@ -303,6 +326,7 @@ class EntradaSalidaMasivoUI(QWidget):
             db.commit()
             
             # ✅ GENERAR VALES PDF (uno por cada cilindro registrado)
+            usuario_actual = get_usuario()
             if registrados > 0 and self.generar_vale.isChecked():
                 for cilindro_data in cilindros_validos:
                     try:
@@ -312,7 +336,7 @@ class EntradaSalidaMasivoUI(QWidget):
                             "Guía": guia,
                             "Cilindro": cilindro_data["codigo"],
                             "Transportista": self.transportista.currentText(),
-                            "Registrado por": self.usuario.currentText()
+                            "Registrado por": usuario_actual.nombre
                         }
                         
                         filename = f"vale_{cilindro_data['codigo']}_{fecha.strftime('%Y%m%d')}.pdf"
@@ -342,7 +366,12 @@ class EntradaSalidaMasivoUI(QWidget):
         """Limpia todos los campos"""
         self.guia.clear()
         self.transportista.setCurrentIndex(0)
-        self.usuario.setCurrentIndex(0)
+        usuario_actual = get_usuario()
+
+        if usuario_actual:
+            self.usuario.setText(
+                f"{usuario_actual.codigo} - {usuario_actual.nombre}"
+            )
         self.movimiento.setCurrentIndex(0)
         self.fecha.setDate(QDate.currentDate())
         
