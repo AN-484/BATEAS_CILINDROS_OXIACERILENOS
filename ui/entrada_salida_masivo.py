@@ -171,7 +171,7 @@ class EntradaSalidaMasivoUI(QWidget):
         self.tabla.removeRow(row)
     
     def on_movimiento_changed(self):
-        """Se ejecuta cuando cambia el movimiento (ENTRADA/SALIDA)"""
+        """Se ejecuta cuando cambia el movimiento (INGRESO/RECARGA)"""
         pass
     
     def guardar_todo(self):
@@ -245,11 +245,11 @@ class EntradaSalidaMasivoUI(QWidget):
                     
                     if movimiento == "INGRESO":
                         if not verificar_entrada_de_cilindro(movimiento, estado_actual, None):
-                            errores.append(f"{codigo}: No cumple validación de ENTRADA")
+                            errores.append(f"{codigo}: No cumple validación de INGRESO")
                             continue
                     elif movimiento == "RECARGA":
                         if not verificar_salida_de_cilindro(movimiento, estado_actual, None):
-                            errores.append(f"{codigo}: No cumple validación de SALIDA")
+                            errores.append(f"{codigo}: No cumple validación de RECARGA")
                             continue
                     
                     # Crear cilindro si no existe
