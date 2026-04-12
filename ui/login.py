@@ -21,6 +21,8 @@ class Login(QWidget):
         btn = QPushButton("Ingresar")
         btn.clicked.connect(self.login)
 
+        self.dni.returnPressed.connect(self.login)
+
         self.msg = QLabel("")
 
         layout.addWidget(self.dni)

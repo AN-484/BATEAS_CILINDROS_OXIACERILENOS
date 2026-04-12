@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout
 from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import QSizePolicy
 
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -31,19 +33,23 @@ from ui.reportes.rep_kardex import KardexUI
 
 from ui.reportes.dashboard import DashboardUI
 
-
+from PySide6.QtWidgets import QToolBar
+from PySide6.QtCore import Qt
 #from PySide6.QtWidgets import QWidget
 
 
 from ui.reportes.rep_estado_cilindros import ReporteEstadoCilindros
 from ui.reportes.rep_entradas_salidas import ReporteEntradasSalidas
-
+from PySide6.QtGui import QShortcut, QKeySequence
 
 class MainWindow(QMainWindow):
     def __init__(self, usuario):
+        
         super().__init__()
 
         self.usuario = usuario
+        # lista de ventanas abiertas
+        self.ventanas = []
 
         self.setWindowTitle(f"SCCO: Cilindros - {usuario}")
         self.resize(1000, 600)
@@ -106,9 +112,105 @@ class MainWindow(QMainWindow):
         self.panel_der_layout.addWidget(self.banner)
 
         self.splitter.addWidget(self.panel_der)
+        # ===== CONTROL DE INACTIVIDAD =====
+
+        self.timer_inactividad = QTimer()
+
+        self.timer_inactividad.setInterval(
+            10 * 60 * 1000  # 10 minutos
+        )
+
+        self.timer_inactividad.timeout.connect(
+            self.cerrar_por_inactividad
+        )
+
+        self.timer_inactividad.start()
         # =====  =====
 
         menubar = self.menuBar()
+        
+        # ===== BARRA DE ACCIONES DERECHA =====
+
+        toolbar = QToolBar()
+
+        toolbar.setMovable(False)
+
+        toolbar.setStyleSheet("""
+            QToolBar {
+                spacing: 8px;
+                padding: 4px;
+            }
+        """)
+
+        self.addToolBar(
+            Qt.TopToolBarArea,
+            toolbar
+        )
+
+        # empujar botones hacia la derecha
+        spacer = QWidget()
+        spacer.setSizePolicy(
+            QSizePolicy.Expanding,
+            QSizePolicy.Preferred
+        )
+
+        toolbar.addWidget(spacer)
+        # ===== NUEVA VENTANA =====
+
+        accion_nueva = QAction(
+            "Nueva ventana",
+            self
+        )
+
+        accion_nueva.setShortcut("Ctrl+N")
+
+        accion_nueva.triggered.connect(
+            self.abrir_nueva_ventana
+        )
+
+        toolbar.addAction(accion_nueva)
+        btn_nueva = toolbar.widgetForAction(accion_nueva)
+
+        btn_nueva.setStyleSheet("""
+            QToolButton {
+                background-color: #2E75B6;
+                color: white;
+                font-weight: bold;
+                padding: 6px 12px;
+                border-radius: 4px;
+            }
+
+            QToolButton:hover {
+                background-color: #1F5A8A;
+            }
+        """)
+
+        accion_salir = QAction(
+            "Salir",
+            self
+        )
+
+        accion_salir.triggered.connect(
+            self.cerrar_sesion
+        )
+
+        toolbar.addAction(accion_salir)
+
+        btn_salir = toolbar.widgetForAction(accion_salir)
+
+        btn_salir.setStyleSheet("""
+            QToolButton {
+                background-color: #C00000;
+                color: white;
+                font-weight: bold;
+                padding: 6px 12px;
+                border-radius: 4px;
+            }
+
+            QToolButton:hover {
+                background-color: #7A0000;
+            }
+        """)
 
         # 📦 DATOS
         menu_datos = menubar.addMenu("DATOS")
@@ -234,3 +336,59 @@ class MainWindow(QMainWindow):
 
         # agregar vista nueva
         self.panel_der_layout.addWidget(widget)
+
+    def abrir_nueva_ventana(self):
+
+        nueva = MainWindow(self.usuario)
+
+        nueva.show()
+
+        self.ventanas.append(nueva)
+    
+    def reset_timer(self):
+
+        self.timer_inactividad.start()
+
+    def mousePressEvent(self, event):
+
+        self.reset_timer()
+
+        super().mousePressEvent(event)
+
+
+    def keyPressEvent(self, event):
+
+        self.reset_timer()
+
+        super().keyPressEvent(event)
+    
+    def cerrar_por_inactividad(self):
+
+        from ui.login_ui import LoginUI
+
+        print("Sesión cerrada por inactividad")
+
+        # cerrar ventanas hijas
+        for v in self.ventanas:
+            v.close()
+
+        self.close()
+
+        # volver al login
+        self.login = LoginUI()
+
+        self.login.show()
+    
+    def cerrar_sesion(self):
+
+        from ui.login import Login
+
+        # cerrar ventanas hijas
+        for v in self.ventanas:
+            v.close()
+
+        self.close()
+
+        self.login = Login()
+
+        self.login.show()
