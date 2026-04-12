@@ -96,7 +96,7 @@ class MainWindow(QMainWindow):
         menu_func = menubar.addMenu("FUNCIONES")
         menu_func.addAction(QAction("Ingreso / Recarga (Proveedor)", self, triggered=self.abrir_entrada_salida))
         menu_func.addAction(QAction("Ingreso / Recarga Masiva", self, triggered=self.abrir_entrada_salida_masiva))
-        menu_func.addAction(QAction("Despacho / Recepción (Operación)", self, triggered=self.abrir_despacho_recepcion))
+        menu_func.addAction(QAction("Despacho / Devolución (Operación)", self, triggered=self.abrir_despacho_recepcion))
 
         # 📊 INFORMES
         menu_inf = menubar.addMenu("INFORMES")
