@@ -52,7 +52,8 @@ class FuncDespachoRecepcionUI(QWidget):
                 #f"{usuario_actual.codigo} - {usuario_actual.nombre}"
                 f"{usuario_actual.nombre}"
             )
-        self.usuario.setStyleSheet("""
+
+        self.registrado.setStyleSheet("""
             QLineEdit {
                 background-color: #E9ECEF;
                 color: #495057;

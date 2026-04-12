@@ -42,6 +42,9 @@ from ui.reportes.rep_entradas_salidas import ReporteEntradasSalidas
 class MainWindow(QMainWindow):
     def __init__(self, usuario):
         super().__init__()
+
+        self.usuario = usuario
+
         self.setWindowTitle(f"SCCO: Cilindros - {usuario}")
         self.resize(1000, 600)
 
@@ -76,6 +79,31 @@ class MainWindow(QMainWindow):
 
         self.panel_der = QWidget()
         self.panel_der_layout = QVBoxLayout(self.panel_der)
+
+                # ===== BANNER SUPERIOR =====
+
+        self.banner = QLabel()
+        self.banner.setFixedHeight(32)
+        self.banner.setAlignment(Qt.AlignCenter)
+
+        self.banner.setStyleSheet("""
+            QLabel {
+                background-color: #1F3A5F;
+                color: white;
+                font-size: 13px;
+                font-weight: 600;
+                padding: 4px 10px;
+                border: none;
+                border-bottom: 2px solid #2E75B6;
+                letter-spacing: 0.5px;
+            }
+        """)
+
+        self.banner.setText(
+            f"Bienvenido {self.usuario}"
+        )
+
+        self.panel_der_layout.addWidget(self.banner)
 
         self.splitter.addWidget(self.panel_der)
         # =====  =====
@@ -168,9 +196,41 @@ class MainWindow(QMainWindow):
 
         # limpiar contenido anterior
         for i in reversed(range(self.panel_der_layout.count())):
+
             item = self.panel_der_layout.itemAt(i)
-            if item.widget():
+
+            if item.widget() and item.widget() != self.banner:
                 item.widget().setParent(None)
 
-        # agregar nuevo contenido
+        # ===== TITULO DE LA FUNCION =====
+
+        titulo = widget.__class__.__name__
+
+        nombres = {
+            "ProductosUI": "Gestión de Productos",
+            "TransportistasUI": "Gestión de Transportistas",
+            "UbicacionesUI": "Gestión de Ubicaciones",
+            "AlmacenesUI": "Gestión de Almacenes",
+            "CilindrosUI": "Gestión de Cilindros",
+            "UsuariosUI": "Gestión de Personal",
+            "PropietariosUI": "Gestión de Propietarios",
+
+            "FuncEntradaSalidaUI": "Ingreso / Recarga",
+            "EntradaSalidaMasivoUI": "Ingreso / Recarga Masiva",
+            "FuncDespachoRecepcionUI": "Despacho / Devolución",
+
+            "ReporteEntradasSalidas": "Reporte de Ingresos / Recargas",
+            "ReporteEstadoCilindros": "Estado de Cilindros",
+            "ReporteMovimientos": "Búsqueda Avanzada",
+            "KardexUI": "Kardex por Cilindro",
+            "DashboardUI": "Dashboard"
+        }
+
+        titulo_legible = nombres.get(titulo, titulo)
+
+        self.banner.setText(
+            f"{titulo_legible}" #| Usuario: {self.usuario}
+        )
+
+        # agregar vista nueva
         self.panel_der_layout.addWidget(widget)
