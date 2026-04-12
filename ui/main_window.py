@@ -94,14 +94,14 @@ class MainWindow(QMainWindow):
 
         # ⚙️ FUNCIONES
         menu_func = menubar.addMenu("FUNCIONES")
-        menu_func.addAction(QAction("Entrada / Salida (Proveedor)", self, triggered=self.abrir_entrada_salida))
-        menu_func.addAction(QAction("Entrada / Salida Masiva", self, triggered=self.abrir_entrada_salida_masiva))
+        menu_func.addAction(QAction("Ingreso / Recarga (Proveedor)", self, triggered=self.abrir_entrada_salida))
+        menu_func.addAction(QAction("Ingreso / Recarga Masiva", self, triggered=self.abrir_entrada_salida_masiva))
         menu_func.addAction(QAction("Despacho / Recepción (Operación)", self, triggered=self.abrir_despacho_recepcion))
 
         # 📊 INFORMES
         menu_inf = menubar.addMenu("INFORMES")
         menu_inf.addAction(QAction("Estado de Cilindros", self, triggered=self.ver_estado))
-        menu_inf.addAction(QAction("Entradas / Salidas", self, triggered=self.ver_entradas_salidas))
+        menu_inf.addAction(QAction("Ingresos / Recargas", self, triggered=self.ver_entradas_salidas))
         menu_inf.addAction(QAction("Búsqueda avanzada", self, triggered=self.ver_busqueda))
         menu_inf.addAction(QAction("Kardex por cilindro", self, triggered=self.ver_kardex))
         menu_inf.addAction(QAction("Dashboard", self, triggered=self.ver_dashboard))

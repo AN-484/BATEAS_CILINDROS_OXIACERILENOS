@@ -10,7 +10,7 @@ from ui.func_entrada_salida_ui_2 import verificar_entrada_de_cilindro, verificar
 class EntradaSalidaMasivoUI(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Entrada / Salida Masiva")
+        self.setWindowTitle("Ingreso / Recarga Masiva")
         self.resize(1000, 600)
         
         layout = QVBoxLayout()
@@ -19,7 +19,7 @@ class EntradaSalidaMasivoUI(QWidget):
         form_layout = QFormLayout()
         
         self.movimiento = QComboBox()
-        self.movimiento.addItems(["ENTRADA", "SALIDA"])
+        self.movimiento.addItems(["INGRESO", "RECARGA"])
         self.movimiento.currentIndexChanged.connect(self.on_movimiento_changed)
         form_layout.addRow("Movimiento:", self.movimiento)
         
@@ -243,11 +243,11 @@ class EntradaSalidaMasivoUI(QWidget):
                     # Validar estado
                     estado_actual = db.query(EstadoCilindro).filter_by(cilindro=codigo).first()
                     
-                    if movimiento == "ENTRADA":
+                    if movimiento == "INGRESO":
                         if not verificar_entrada_de_cilindro(movimiento, estado_actual, None):
                             errores.append(f"{codigo}: No cumple validación de ENTRADA")
                             continue
-                    elif movimiento == "SALIDA":
+                    elif movimiento == "RECARGA":
                         if not verificar_salida_de_cilindro(movimiento, estado_actual, None):
                             errores.append(f"{codigo}: No cumple validación de SALIDA")
                             continue
@@ -277,7 +277,7 @@ class EntradaSalidaMasivoUI(QWidget):
                     db.add(nuevo)
                     
                     # Actualizar estado
-                    if movimiento == "ENTRADA":
+                    if movimiento == "INGRESO":
                         estado = "STOCK"
                         ubicacion = "ALMACEN"
                     else:

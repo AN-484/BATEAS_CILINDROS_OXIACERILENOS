@@ -7,7 +7,7 @@ from ui.components.export_excel import exportar_excel
 class ReporteEntradasSalidas(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Reporte Entradas / Salidas")
+        self.setWindowTitle("Reporte Ingresos / Recargas")
 
         layout = QVBoxLayout()
 

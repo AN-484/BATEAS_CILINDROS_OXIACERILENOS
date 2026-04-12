@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import *
 
 def verificar_entrada_de_cilindro(movimiento, estado_actual, parent):
-    if movimiento == "ENTRADA":
+    if movimiento == "INGRESO":
         if estado_actual and estado_actual.estado != "EN PROVEEDOR":
             QMessageBox.warning(
                 parent,
@@ -13,7 +13,7 @@ def verificar_entrada_de_cilindro(movimiento, estado_actual, parent):
 
 
 def verificar_salida_de_cilindro(movimiento, estado_actual, parent):
-    if movimiento == "SALIDA":
+    if movimiento == "RECARGA":
         if not estado_actual or estado_actual.estado != "VACIO":
             estado_msg = "No registrado" if not estado_actual else estado_actual.estado
             QMessageBox.warning(

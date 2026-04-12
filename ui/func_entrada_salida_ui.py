@@ -14,7 +14,7 @@ class FuncEntradaSalidaUI(QWidget):
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("Entrada / Salida")
+        self.setWindowTitle("Ingreso / Recarga")
 
         layout = QFormLayout()
 
@@ -53,7 +53,7 @@ class FuncEntradaSalidaUI(QWidget):
         self.cargar_usuarios()
 
         self.movimiento = QComboBox()
-        self.movimiento.addItems(["ENTRADA", "SALIDA"])
+        self.movimiento.addItems(["INGRESO", "RECARGA"])
 
         # ✅ CHECKBOX PARA GENERAR VALE PDF
         self.generar_vale = QCheckBox("Generar vale PDF")
@@ -151,10 +151,10 @@ class FuncEntradaSalidaUI(QWidget):
             # 🔥 VALIDACIÓN DE ESTADO
             estado_actual = db.query(EstadoCilindro).filter_by(cilindro=codigo_cilindro).first()
 
-            if movimiento == "ENTRADA":
+            if movimiento == "INGRESO":
                 if not verificar_entrada_de_cilindro(movimiento, estado_actual, self):
                     return
-            elif movimiento == "SALIDA":
+            elif movimiento == "RECARGA":
                 if not verificar_salida_de_cilindro(movimiento, estado_actual, self):
                     return
 
@@ -185,7 +185,7 @@ class FuncEntradaSalidaUI(QWidget):
             db.add(nuevo)
 
             # estado correcto
-            if movimiento == "ENTRADA":
+            if movimiento == "INGRESO":
                 estado = "STOCK"
                 ubicacion = "ALMACEN"
             else:

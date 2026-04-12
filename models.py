@@ -56,7 +56,7 @@ class Guias(Base):
     serie = Column(String, primary_key=True)
 
 
-class EntradaSalida(Base):
+class EntradaSalida(Base):  #Se cambio Entrada/Salida por Ingreso/Recarga.
     __tablename__ = "entradas_salidas"
 
     id = Column(String, primary_key=True)
@@ -67,7 +67,7 @@ class EntradaSalida(Base):
     cod_transportista = Column(String)
     transportista = Column(String)
 
-    tipo = Column(String)  # ENTRADA / SALIDA
+    tipo = Column(String)  # INGRESO / RECARGA
 
     registrado_por = Column(String)
 
