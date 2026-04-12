@@ -1,10 +1,14 @@
-from database import crear_tablas
-from ui.menu_principal import iniciar_menu
+import sys
+from PySide6.QtWidgets import QApplication
+from ui.login import Login
 
 def main():
+    app = QApplication(sys.argv)
 
-    crear_tablas()
-    iniciar_menu()
+    login = Login()
+    login.show()
+
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()

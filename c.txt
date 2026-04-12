@@ -1,0 +1,109 @@
+necesito crear un programa de logistica en python, donde tenemos que realizar una serie de inventario con funcionalidades para el manejo de cilindros de oxiacitilenos, oxigenos y otros:
+---------------materiales------------------
+Nombre de Producto	Codigo Material	Medida
+OXIGENO INDUSTRIAL x 10M3	1000026903	LC
+OXIGENO INDUSTRIAL x 6M3	1000000540	LC
+OXIGENO MEDICINAL x 10M3	1000021484	LC
+OXIGENO MEDICINAL x 1M3	1000000545	LC
+OXIGENO MEDICINAL x 3M3	1000013946	LC
+OXIGENO MEDICINAL x 6 M3	1000000539	LC
+DIOXIDO DE CARBONO x 30KG	1000019965	LC
+ACETILENO ABSORCION ATOMICA x 9KG	1000000550	LC
+ACETILENO INDUSTRIAL x 9KG	1000000541	LC
+CILINDRO P/OXIGENO MEDICINAL  x 10 M3	1000026797	UN
+CILINDRO P/OXIGENOS	1000026796	UN
+STARGOLD TUB 10M3	1000031504	LC
+STARGOLD TUB 7M3	1000019966	LC
+NITROGENO GAS x 10M3	1000030666	LC
+--------------------listas de datos base-----------------------
+El programa debe poder guardar la siguiente información en una base de datos con los siguientes cuadros:
+
+- Lista de productos: BD donde se guardan todos los detalles del tipo de material que se guardaran en los Cilindros (Nombre de Material |Código Material|Medida ) ejemplo: OXIACITILENO | 1000000540 | UN/LC.
+
+- Lista de Transportistas: BD donde se guardan la información de los transportistas (CODIGO | TRANSPORTISTAS |RUC) ejemplo: T0001 | Cetar | 2060542875
+
+- Lista de Ubicaciones: BD donde se guardan las áreas de ejecución (CODIGO | NOMBRE) ejemplo:  A0001 | Mina/Planta/Geología/...
+
+- Lista de Almacén: BD donde se guarda los Almacenes (CODIGO | NOMBRE)  ejemplo: 0001 | Patio Principal/Patio
+
+- lista de Usuarios: BD para los usuarios que integran el manejo del almacén (CODIGO | NOMBRE | CARGO) ejemplo:  U0001 | Cesar Uribe | Auxiliar
+
+- lista de Cilindros: BD donde se guarda toda la información de cilindros (cada cilindro tiene un código único y un propietario distribuidor, ya que estos se recargan) (CODIGO | PROPIETARIO)  ejemplo: M230617 | LINDE
+
+---------------Listas con funcionalidades dinámicas-------------
+
+
+- lista de Entradas: BD donde se guarda todos las entradas (cilindros llenados con material desde el proveedor) (FECHA |N° DE GUIA|C. TRANS|TRANSPORTISTA|MOVIMIENTO|REGISTRADO POR) 
+FECHA:  debe ser con la fecha actual por default.
+C. TRANS|TRANSPORTISTA: viene de la lista de transportistas [se puede escribir el código o se puede seleccionar el transportista].
+MOVIMIENTO: ENTRADA por default.
+REGISTRADO: sale de la lista de usuarios [se puede escribir y ayudando el autocompletado o seleccionar].
+
+
+- lista de Salidas: BD donde se guarda todos las salidas (cilindros vacíos que se retornan al proveedor) (FECHA |N° DE GUIA|C. TRANS|	TRANSPORTISTA	|MOVIMIENTO|REGISTRADO POR)
+
+FECHA: debe ser con la fecha actual por default.
+C. TRANS|TRANSPORTISTA: viene de la lista de transportistas [se puede escribir el código o se puede seleccionar el transportista].
+MOVIMIENTO: SALIDA por default.
+REGISTRADO: sale de la lista de usuarios [se puede escribir y ayudando el autocompletado o seleccionar].
+
+Ojo: En el caso de Entradas y salidas se maneja el mismo cuestionario para completar las listas, puede ser un mismo cuestionario con la opción de marcar ENTRADA/SALIDA.
+
+- Lista de Despachos: BD donde se registran los despachos de los cilindros (FECHA de REGISTO|CODIGO|MATERIAL|Area|MOVIMIENTO|ENCARGADO ALMACEN|RESPONSABLE AREA|REGISTRADO POR):
+
+CODIGO: sacado de la lista de cilindro [escribir código o seleccionar].
+MATERIAL: código de material de la lista de materiales [escribir código o seleccionar].
+Área: sacado de la lista de ubicaciones [escribir código o seleccionar].
+MOVIMIENTO: donde se marca como DESPACHADO.
+ENCARGADO ALMACEN: sacado de usuarios [escribir código o seleccionar].
+RESPONSABLE AREA: [se escribe el nombre del encargado del área destino].
+REGISTRADO POR: sacado de usuarios [escribir código o seleccionar].
+FECHA de REGISTO: fecha automática.
+
+- Lista de Recepciones: BD donde se registran las recepciones de los cilindros (FECHA de REGISTO|CODIGO|MATERIAL|Area|MOVIMIENTO|ENCARGADO ALMACEN|RESPONSABLE AREA|REGISTRADO POR) :
+
+CODIGO: sacado de la lista de cilindro [escribir código o seleccionar].
+MATERIAL: código de material de la lista de materiales [escribir código o seleccionar].
+Área: sacado de la lista de ubicaciones [escribir código o seleccionar].
+MOVIMIENTO: donde se marca como RECEPCIONADO.
+ENCARGADO ALMACEN: sacado de usuarios [escribir código o seleccionar].
+RESPONSABLE AREA: [se escribe el nombre del encargado del área destino].
+REGISTRADO POR: sacado de usuarios [escribir código o seleccionar].
+FECHA de REGISTO: fecha automática.
+
+Ojo: En el caso de DESPACHOS Y RECEPCIONES se maneja el mismo cuestionario para completar las listas, puede ser un mismo cuestionario con la opción de marcar DESPACHADO/RECEPCIONADO.
+
+-------Listas automáticas tipo informe-----
+
+- lista de Estados de cada Cilindro: BD donde se guarda el estado de cada cilindros después de un movimiento (INGRESO/SALIDA/DESPACHO/RECEPCION), los estados seria: DISPNIBLE/VACIO/EN CLIENTE/EN PROVEEDOR, y la lista debe tener los datos (Código de Cilindro |Propietario | Código Material | Nombre de material |Medida|Capacidad|Estado|Fecha de movimiento |Ubicación |OBS ), y la funcionalidades o condicionales:
+
+Código |Propietario: viene y se competa de la lista de cilindros.
+Código Material | Nombre de material |Medida: viene y se completa de la lista de materiales.
+Capacidad: por default 1.
+Estado: tiene que reflejarse dependiendo si el producto esta DISPNIBLE/VACIO/EN CLIENTE/EN PROVEEDOR de forma automática después de las funcionalidades de (despachos, recepción, entradas y salidas). [si ENTRA esta DISPONIBLE, si se DESPACHA esta EN CLIENTE, si RECEPCIONA esta VACIO, si es SALIDA se marca con EN PROVEEDOR]
+Fecha de movimiento: esta fecha tiene que mostrarse dependiendo del ultimo movimiento (ENTRADA/SALIDA/DESPACHO/RECEPCION).
+Ubicación : viene de la lista de ubicaciones o de almacén , si el producto esta en el área de almacén se completa con el (codigo-nombre) de la lista de almacén y si es de otra area se completa con el nombre de las areas de la lista de ubicaciones.
+
+Ojo:en este caso no se debe llenar un cuestionario sino que todo se hace automaticamente una vez se completen las funcionalidades de INGRESO/SALIDA/DESPACHO/RECEPCION.
+
+- Lista general de movimientos: (todos los movimiento) BD, donde se le registraran todos los movimientos de DESPACHO y RECEPCION sin excepción. (FECHA DE REGISTRO|CODIGO| MATERIAL |Área |ESTADO |ENCARGADO DE ALMACEN |RESPONSABLE DE AREA |REGISTRADO POR)
+
+- Lista general de Entradas/Salidas: (todos los movimiento) BD, donde se le registraran todos los movimientos de Entradas/Salidas sin excepción. (FECHA |N° DE GUIA|C. TRANS|	TRANSPORTISTA	|MOVIMIENTO|REGISTRADO POR)
+
+----------------------------------
+Bien, teniendo todos estas listas, tenemos que crear un programa para Windows local con Python, el programa debe ser capaz de:
+
+-Agregar, modificar y eliminar las listas de datos base.
+
+- La interfaz debe ser profesional tipo estilo de Windows.
+
+- El menú principal debe tener 3 opciones: DATOS/FUNCIONES/INFORMES:
+	DATOS: aquí es donde irán las listas y funcionalidades de las estáticas.
+	FUNCIONES: aquí es donde irán las funcionalidades de INGRESO/SALIDA/DESPACHO/RECEPCION.
+	INFORMES: aquí es donde en principio debería haber botones donde se pueda ver las listas automáticas tipo informe (lista de Estados de cada Cilindro, Lista general de movimientos, Lista general de Entradas/Salidas) y también de forma independiente (lista de Entradas, lista de Salidas, lista de Recepción, lista de Despacho).Pero un botón o sección más donde se puedan hacer búsquedas avacadas y detalladas. Todos estos informes, búsquedas y consultas tienen que ser capaces de ser exportados en Excel, y también los datos base.  
+- Debe ser capaz de generar e imprimir un vale de verificación para las funcionalidades de INGRESO/SALIDA/DESPACHO/RECEPCION (como evidencia del movimiento para que se firmen por el despachador y el cliente responsable). Esta función es opcional, pero tendría que tener la función de imprimir o guardar en pdf.
+----------------------
+
+Ayúdame crear esto y dime en que forma seria mas eficiente, escalable y muy funcional todas estas funciones? que base de datos usaríamos?  lo haríamos en archivos Excel o txt, cual seria la mejor forma?. Y además tendrás que darme todo el código para copiar y pegar.
+
+Ten en cuenta que esto tenemos que escalar en un futuro para agregar mas funciones, tecnologías y la forma de manejar la base de datos. Ejemplos: mas funciones relacionadas, agregar forma de ingreso por Qr o barra de líneas, integrarlo con una app de  teléfono, manejar la base de data a través de varias computadoras, que todas las maquinas del almacén puedan usar este software, agregar usuarios y contraseñas para seguridad, manejar y guardar documentos, escaneos y muchas más.
