@@ -46,12 +46,12 @@ class FuncDespachoRecepcionUI(QWidget):
 
         #################################
         '''self.movimiento = QComboBox()
-        self.movimiento.addItems(["DESPACHO", "RECEPCION"])'''
+        self.movimiento.addItems(["DESPACHO", "DEVOLUCION"])'''
 
         self.tipo = "DESPACHO"  # default
 
         self.btn_despacho = QPushButton("🚚 DESPACHO")
-        self.btn_recepcion = QPushButton("📥 RECEPCIÓN")
+        self.btn_recepcion = QPushButton("📥 DEVOLUCION")
 
         self.btn_despacho.setStyleSheet("background-color: lightgreen;")
         self.btn_recepcion.setStyleSheet("")
@@ -265,8 +265,8 @@ class FuncDespachoRecepcionUI(QWidget):
                     f"Estado: {estado.estado} | Ubicación: {estado.ubicacion}"
                 )
                 
-                # Si es RECEPCION, autocompletar área y desactivarla
-                if self.tipo == "RECEPCION" and estado.estado == "EN CLIENTE":
+                # Si es DEVUELVE, autocompletar área y desactivarla
+                if self.tipo == "DEVOLUCION" and estado.estado == "EN CLIENTE":
                     # Buscar la ubicación en el ComboBox de área
                     index_area = self.area.findText(estado.ubicacion)
                     if index_area >= 0:
@@ -291,7 +291,7 @@ class FuncDespachoRecepcionUI(QWidget):
         self.verificar_stock()
 
     def set_recepcion(self):
-        self.tipo = "RECEPCION"
+        self.tipo = "DEVOLUCION"
         self.btn_recepcion.setStyleSheet("background-color: lightblue;")
         self.btn_despacho.setStyleSheet("")
         # Limpiar cilindro e info al cambiar tipo
@@ -332,7 +332,7 @@ class FuncDespachoRecepcionUI(QWidget):
 
         else:
 
-            # RECEPCION - Verificar cilindros en cliente
+            # DEVOLUCION - Verificar cilindros en cliente
             db = SessionLocal()
             try:
                 disponibles = db.query(EstadoCilindro).filter_by(

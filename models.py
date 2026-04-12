@@ -82,7 +82,7 @@ class MovimientoDetalle(Base):
 
     area = Column(String)
 
-    tipo = Column(String)  # DESPACHO / RECEPCION
+    tipo = Column(String)  # DESPACHO / DEVOLUCION
 
     encargado_almacen = Column(String)
     responsable_area = Column(String)

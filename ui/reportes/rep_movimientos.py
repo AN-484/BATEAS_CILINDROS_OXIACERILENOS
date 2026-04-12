@@ -23,7 +23,7 @@ class ReporteMovimientos(QWidget):
 
         self.f_tipo = QComboBox()
         self.f_tipo.addItem("TODOS")
-        self.f_tipo.addItems(["DESPACHO", "RECEPCION"])
+        self.f_tipo.addItems(["DESPACHO", "DEVOLUCION"])
 
         btn_buscar = QPushButton("Buscar")
         btn_buscar.clicked.connect(self.buscar)

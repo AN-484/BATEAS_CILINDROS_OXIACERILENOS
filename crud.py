@@ -47,6 +47,6 @@ def validar_recepcion(db, cilindro):
     estado = obtener_estado_actual(db, cilindro)
 
     if not estado or estado.estado != "EN CLIENTE":
-        return False, "❌ Solo puedes recepcionar cilindros que están en cliente"
+        return False, "❌ Solo puedes devolver cilindros que están en cliente"
 
     return True, ""
