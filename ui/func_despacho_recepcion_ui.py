@@ -82,12 +82,12 @@ class FuncDespachoRecepcionUI(QWidget):
         layout.addRow("Disponibilidad", self.indicador)
         layout.addRow("", self.btn_seleccionar)
         layout.addRow("Cilindro", self.cilindro)
-        layout.addRow("    '----> Info", self.info)
+        layout.addRow("    '--------> Info", self.info)
         layout.addRow("Área", self.area)
         #layout.addRow("Movimiento", self.movimiento)
         #layout.addRow("Material", self.material)
-        layout.addRow("Encargado", self.encargado)
-        layout.addRow("Responsable Área", self.responsable)
+        layout.addRow("Encargado Almacen", self.encargado)
+        layout.addRow("Usuario que recoge:", self.responsable)
         layout.addRow("Registrado por", self.registrado)
         
         # ✅ CHECKBOX PARA GENERAR VALE PDF
