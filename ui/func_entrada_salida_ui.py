@@ -26,9 +26,13 @@ class FuncEntradaSalidaUI(QWidget):
         self.fecha.setCalendarPopup(True)  # 🔥 botón calendario
 
         self.guia = QLineEdit()
+        self.guia.setPlaceholderText("Número de Guia, Ejemplo: G001-12345")
+        self.nro_documento = QLineEdit()
+        self.nro_documento.setPlaceholderText("Número de documento")
 
         # 🔥 Cilindro New o desde BD
         self.cilindro = QLineEdit()
+        self.cilindro.setPlaceholderText("Código de Cilindro existente o nuevo (presione ENTER para verificar)")
         self.cilindro.editingFinished.connect(self.verificar_cilindro)
         
 
@@ -87,6 +91,7 @@ class FuncEntradaSalidaUI(QWidget):
         layout.addRow("Cod. Producto", self.producto)
         layout.addRow("Fecha Hidrostática", self.fecha_hidro)
         layout.addRow("Guía", self.guia)
+        layout.addRow("N° Documento", self.nro_documento)
         layout.addRow("Transportista", self.transportista)
         layout.addRow("Movimiento", self.movimiento)
         layout.addRow("Registrado por", self.usuario)
@@ -146,6 +151,10 @@ class FuncEntradaSalidaUI(QWidget):
             QMessageBox.warning(self, "Error", "Ingrese número de guía")
             return
         
+        if not self.nro_documento.text().strip():
+            QMessageBox.warning(self, "Error", "Ingrese número de documento")
+            return
+        
         if not self.propietario.currentData():
             QMessageBox.warning(self, "Error", "Seleccione propietario")
             return
@@ -194,6 +203,7 @@ class FuncEntradaSalidaUI(QWidget):
                 #fecha=datetime.now(),
                 fecha=self.fecha.date().toPython(),
                 nro_guia=self.guia.text(),
+                nro_documento=self.nro_documento.text().strip(),
                 cilindro=codigo_cilindro,
                 producto=self.producto.currentData(),   
                 cod_transportista=self.transportista.currentData(),
@@ -248,6 +258,7 @@ class FuncEntradaSalidaUI(QWidget):
     def limpiar_campos(self):
         self.cilindro.clear()
         self.guia.clear()
+        self.nro_documento.clear()
         self.propietario.setCurrentIndex(0)
         self.producto.setCurrentIndex(0)
         self.transportista.setCurrentIndex(0)

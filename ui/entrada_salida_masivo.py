@@ -27,6 +27,10 @@ class EntradaSalidaMasivoUI(QWidget):
         self.guia = QLineEdit()
         self.guia.setPlaceholderText("Número de guía")
         form_layout.addRow("Guía:", self.guia)
+
+        self.nro_documento = QLineEdit()
+        self.nro_documento.setPlaceholderText("Número de documento")
+        form_layout.addRow("N° Documento:", self.nro_documento)
         
         self.transportista = QComboBox()
         form_layout.addRow("Transportista:", self.transportista)
@@ -212,6 +216,10 @@ class EntradaSalidaMasivoUI(QWidget):
         if not self.guia.text().strip():
             QMessageBox.warning(self, "Error", "Ingrese número de guía")
             return
+
+        if not self.nro_documento.text().strip():
+            QMessageBox.warning(self, "Error", "Ingrese número de documento")
+            return
         
         if not self.transportista.currentData():
             QMessageBox.warning(self, "Error", "Seleccione transportista")
@@ -227,6 +235,7 @@ class EntradaSalidaMasivoUI(QWidget):
         
         movimiento = self.movimiento.currentText()
         guia = self.guia.text()
+        nro_documento=self.nro_documento.text().strip()
         transportista = self.transportista.currentData()
         usuario_actual = get_usuario()
         usuario = usuario_actual.codigo
@@ -299,6 +308,7 @@ class EntradaSalidaMasivoUI(QWidget):
                         id=str(datetime.now().timestamp()),
                         fecha=fecha,
                         nro_guia=guia,
+                        nro_documento=nro_documento,
                         cilindro=codigo,
                         producto=material,
                         cod_transportista=transportista,
@@ -374,6 +384,7 @@ class EntradaSalidaMasivoUI(QWidget):
     def limpiar_todos(self):
         """Limpia todos los campos"""
         self.guia.clear()
+        self.nro_documento.clear()
         self.transportista.setCurrentIndex(0)
         usuario_actual = get_usuario()
 

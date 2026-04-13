@@ -70,7 +70,8 @@ def generar_vale(data, filename="vale.pdf", generar_pdf=True):
 
     if "Guía" in data:
         contenido.append(Paragraph(f"Número de guía: {data['Guía']}", normal_style))
-
+    if "N° Documento" in data:
+        contenido.append(Paragraph(f"N° Documento: {data['N° Documento']}", normal_style))
     contenido.append(Spacer(1, 15))
 
     # TABLA CON INFORMACIÓN PRINCIPAL

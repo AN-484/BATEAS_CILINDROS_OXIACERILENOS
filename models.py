@@ -62,6 +62,7 @@ class EntradaSalida(Base):  #Se cambio Entrada/Salida por Ingreso/Recarga.
 
     id = Column(String, primary_key=True)
     fecha = Column(Date, default=date.today)
+    nro_documento = Column(String)
     nro_guia = Column(String)
     cilindro = Column(String)
     producto = Column(String)

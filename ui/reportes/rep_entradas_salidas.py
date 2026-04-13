@@ -13,7 +13,10 @@ class ReporteEntradasSalidas(QWidget):
 
         # 🔍 filtro
         self.filtro = QLineEdit()
-        self.filtro.setPlaceholderText("Buscar guía...")
+        self.filtro.setPlaceholderText("Buscar por n° de guía...")
+
+        self.filtro_nro_documento = QLineEdit()
+        self.filtro_nro_documento.setPlaceholderText("Buscar por n° de documento...")
 
         btn_buscar = QPushButton("Buscar")
         btn_buscar.clicked.connect(self.cargar_datos)
@@ -24,13 +27,14 @@ class ReporteEntradasSalidas(QWidget):
         self.tabla = TableView()
 
         layout.addWidget(self.filtro)
+        layout.addWidget(self.filtro_nro_documento)
         layout.addWidget(btn_buscar)
         layout.addWidget(btn_excel)
         layout.addWidget(self.tabla)
 
         self.setLayout(layout)
 
-        self.headers = ["Fecha", "Guía", "Cilindro", "F. Hidrostática", "Transportista", "Tipo", "Usuario"]
+        self.headers = ["Fecha", "Guía","N° Documento", "Cilindro", "F. Hidrostática", "Transportista", "Tipo", "Usuario"]
         self.data = []
 
         self.cargar_datos()
@@ -40,11 +44,14 @@ class ReporteEntradasSalidas(QWidget):
         
         try:
             texto = self.filtro.text()
+            texto_doc = self.filtro_nro_documento.text()
 
             query = db.query(EntradaSalida)
 
             if texto:
                 query = query.filter(EntradaSalida.nro_guia.contains(texto))
+            elif texto_doc:
+                query = query.filter(EntradaSalida.nro_documento.contains(texto_doc))
 
             resultados = query.all()
             
@@ -57,6 +64,7 @@ class ReporteEntradasSalidas(QWidget):
                 [
                     r.fecha,
                     r.nro_guia,
+                    r.nro_documento,
                     r.cilindro,
                     cilindros.get(r.cilindro),
                     transportistas.get(r.transportista, r.transportista),  # Mostrar nombre
