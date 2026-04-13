@@ -213,14 +213,16 @@ class MainWindow(QMainWindow):
         """)
 
         # 📦 DATOS
-        menu_datos = menubar.addMenu("DATOS")
-        menu_datos.addAction(QAction("Productos", self, triggered=self.abrir_productos))
-        menu_datos.addAction(QAction("Transportistas", self, triggered=self.abrir_transportistas))
-        menu_datos.addAction(QAction("Ubicaciones", self, triggered=self.abrir_ubicaciones))
-        menu_datos.addAction(QAction("Almacenes", self, triggered=self.abrir_almacenes))
-        menu_datos.addAction(QAction("Cilindros", self, triggered=self.abrir_cilindros))
-        menu_datos.addAction(QAction("Propietarios", self, triggered=self.abrir_propietarios))
-        menu_datos.addAction(QAction("Personal", self, triggered=self.abrir_usuarios))
+        self.menu_datos = menubar.addMenu("DATOS")
+        self.menu_datos.addAction(QAction("Productos", self, triggered=self.abrir_productos))
+        self.menu_datos.addAction(QAction("Transportistas", self, triggered=self.abrir_transportistas))
+        self.menu_datos.addAction(QAction("Ubicaciones", self, triggered=self.abrir_ubicaciones))
+        self.menu_datos.addAction(QAction("Almacenes", self, triggered=self.abrir_almacenes))
+        self.menu_datos.addAction(QAction("Cilindros", self, triggered=self.abrir_cilindros))
+        self.menu_datos.addAction(QAction("Propietarios", self, triggered=self.abrir_propietarios))
+        self.menu_datos.addAction(QAction("Personal", self, triggered=self.abrir_usuarios))
+
+        #self.aplicar_permisos()
 
         # ⚙️ FUNCIONES
         menu_func = menubar.addMenu("FUNCIONES")
@@ -236,6 +238,7 @@ class MainWindow(QMainWindow):
         menu_inf.addAction(QAction("Kardex por cilindro", self, triggered=self.ver_kardex))
         menu_inf.addAction(QAction("Dashboard", self, triggered=self.ver_dashboard))
 
+        self.aplicar_permisos()
     # ================= DATOS =================
     def abrir_productos(self): #self.w = ProductosUI(); self.w.show()
         self.set_view(ProductosUI())
@@ -392,3 +395,17 @@ class MainWindow(QMainWindow):
         self.login = Login()
 
         self.login.show()
+
+    def aplicar_permisos(self):
+
+        # LISTA DE DNI QUE SI PUEDEN VER DATOS
+        USUARIOS_CON_DATOS = [
+            "MANUEL NIFLA LL",
+            "CESAR RAMIREZ MALDONADO",
+            "MIGUEL BENITES "
+        ]
+
+        # si el usuario NO está en la lista
+        if self.usuario not in USUARIOS_CON_DATOS:
+
+            self.menu_datos.setEnabled(False)
