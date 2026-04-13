@@ -66,8 +66,12 @@ class Login(QWidget):
         self.titulo = QLabel(
             "Sistema de Control de Cilindros"
         )
+        self.titulo2 = QLabel(
+            "Ingrese su DNI:"
+        )
 
         self.titulo.setAlignment(Qt.AlignCenter)
+        self.titulo2.setAlignment(Qt.AlignCenter)
 
         self.titulo.setStyleSheet("""
             QLabel {
@@ -80,13 +84,13 @@ class Login(QWidget):
         # ===== CAMPO DNI =====
 
         self.dni = QLineEdit()
-
-        self.dni.setPlaceholderText(
-            "Ingrese DNI"
-        )
-
         # solo 8 caracteres
+        
+
+        self.dni.setPlaceholderText("DNI")
         self.dni.setMaxLength(8)
+
+        
 
         # solo números
         self.dni.setValidator(
@@ -159,8 +163,10 @@ class Login(QWidget):
         layout.addSpacing(10)
 
         layout.addWidget(self.titulo)
+        layout.addSpacing(15)
+        layout.addWidget(self.titulo2)
 
-        layout.addSpacing(20)
+        layout.addSpacing(1)
 
         layout.addWidget(self.dni)
 
