@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         # lista de ventanas abiertas
         self.ventanas = []
 
-        self.setWindowTitle(f"SCCO: Cilindros - {usuario}")
+        self.setWindowTitle(f"SCCO :  Cilindros   -   {usuario}")
         self.resize(1000, 600)
 
         # ===== CENTRAL WIDGET =====
@@ -228,13 +228,13 @@ class MainWindow(QMainWindow):
         menu_func = menubar.addMenu("FUNCIONES")
         menu_func.addAction(QAction("Ingreso / Recarga (Proveedor)", self, triggered=self.abrir_entrada_salida))
         menu_func.addAction(QAction("Ingreso / Recarga Masiva", self, triggered=self.abrir_entrada_salida_masiva))
-        menu_func.addAction(QAction("Despacho / Devolución (Operación)", self, triggered=self.abrir_despacho_recepcion))
+        menu_func.addAction(QAction("Despacho / Devolución [Almacén]", self, triggered=self.abrir_despacho_recepcion))
 
         # 📊 INFORMES
         menu_inf = menubar.addMenu("INFORMES")
         menu_inf.addAction(QAction("Estado de Cilindros", self, triggered=self.ver_estado))
         menu_inf.addAction(QAction("Ingresos / Recargas", self, triggered=self.ver_entradas_salidas))
-        menu_inf.addAction(QAction("Búsqueda avanzada", self, triggered=self.ver_busqueda))
+        menu_inf.addAction(QAction("Buscar Despacho / Devolución", self, triggered=self.ver_busqueda))
         menu_inf.addAction(QAction("Kardex por cilindro", self, triggered=self.ver_kardex))
         menu_inf.addAction(QAction("Dashboard", self, triggered=self.ver_dashboard))
 
@@ -326,7 +326,7 @@ class MainWindow(QMainWindow):
 
             "ReporteEntradasSalidas": "Reporte de Ingresos / Recargas",
             "ReporteEstadoCilindros": "Estado de Cilindros",
-            "ReporteMovimientos": "Búsqueda Avanzada",
+            "ReporteMovimientos": "Búsqueda Avanzada - Despachos / Devoluciones",
             "KardexUI": "Kardex por Cilindro",
             "DashboardUI": "Dashboard"
         }
@@ -367,7 +367,7 @@ class MainWindow(QMainWindow):
     
     def cerrar_por_inactividad(self):
 
-        from ui.login_ui import LoginUI
+        from ui.login import LoginUI
 
         print("Sesión cerrada por inactividad")
 

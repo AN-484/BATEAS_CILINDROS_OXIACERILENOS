@@ -7,7 +7,7 @@ from ui.components.export_excel import exportar_excel
 class ReporteMovimientos(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Búsqueda Avanzada - Movimientos")
+        self.setWindowTitle("Búsqueda Avanzada - Despachos / Devoluciones")
 
         layout = QVBoxLayout()
 
@@ -60,7 +60,7 @@ class ReporteMovimientos(QWidget):
 
         self.setLayout(layout)
 
-        self.headers = ["Fecha", "Cilindro", "Material", "Área", "Tipo", "Encargado", "Responsable", "Registrado por"]
+        self.headers = ["Fecha", "Cilindro", "Material", "Área", "Tipo", "Autorizado por", "Usuario Atendido", "Registrado por"]
         self.data = []
 
     def cargar_materiales(self):

@@ -17,6 +17,7 @@ class ReporteEntradasSalidas(QWidget):
 
         self.filtro_nro_documento = QLineEdit()
         self.filtro_nro_documento.setPlaceholderText("Buscar por n° de documento...")
+        self.filtro_nro_documento.setMaxLength(10)
 
         btn_buscar = QPushButton("Buscar")
         btn_buscar.clicked.connect(self.cargar_datos)

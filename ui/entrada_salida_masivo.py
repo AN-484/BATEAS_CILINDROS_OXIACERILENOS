@@ -30,6 +30,7 @@ class EntradaSalidaMasivoUI(QWidget):
 
         self.nro_documento = QLineEdit()
         self.nro_documento.setPlaceholderText("Número de documento")
+        self.nro_documento.setMaxLength(10)
         form_layout.addRow("N° Documento:", self.nro_documento)
         
         self.transportista = QComboBox()

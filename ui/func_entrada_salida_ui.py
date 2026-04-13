@@ -29,6 +29,7 @@ class FuncEntradaSalidaUI(QWidget):
         self.guia.setPlaceholderText("Número de Guia, Ejemplo: G001-12345")
         self.nro_documento = QLineEdit()
         self.nro_documento.setPlaceholderText("Número de documento")
+        self.nro_documento.setMaxLength(10)  # Limitar a 10 caracteres
 
         # 🔥 Cilindro New o desde BD
         self.cilindro = QLineEdit()

@@ -106,7 +106,7 @@ class FuncDespachoRecepcionUI(QWidget):
         layout.addRow("Área", self.area)
         #layout.addRow("Movimiento", self.movimiento)
         #layout.addRow("Material", self.material)
-        layout.addRow("Encargado Almacen", self.encargado)
+        layout.addRow("Autorizado por", self.encargado)
         layout.addRow("Usuario que recoge:", self.responsable)
         layout.addRow("Registrado por", self.registrado)
         
