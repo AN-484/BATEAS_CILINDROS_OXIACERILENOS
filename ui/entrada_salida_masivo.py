@@ -159,8 +159,17 @@ class EntradaSalidaMasivoUI(QWidget):
         row = self.tabla.rowCount()
         self.tabla.insertRow(row)
         
-        # Código cilindro
+        ####### Código cilindro
+        #codigo_input = QLineEdit()
+        #self.tabla.setCellWidget(row, 0, codigo_input)
+
         codigo_input = QLineEdit()
+
+                # 🔥 detectar cuando termina de escribir
+        codigo_input.editingFinished.connect(
+            lambda r=row: self.verificar_cilindro_fila(r)
+        )
+
         self.tabla.setCellWidget(row, 0, codigo_input)
         
         # Propietario (ComboBox)
@@ -378,3 +387,86 @@ class EntradaSalidaMasivoUI(QWidget):
         # Limpiar tabla
         self.tabla.setRowCount(0)
         self.agregar_fila()
+
+    def verificar_cilindro_fila(self, row):
+        codigo_widget = self.tabla.cellWidget(row, 0)
+
+        if not codigo_widget:
+            return
+
+        codigo = codigo_widget.text().strip()
+
+        if not codigo:
+            return
+
+        db = SessionLocal()
+
+        try:
+
+            c = db.query(Cilindro).filter_by(
+                codigo=codigo
+            ).first()
+
+            propietario_combo = self.tabla.cellWidget(row, 1)
+            material_combo = self.tabla.cellWidget(row, 2)
+            fecha_hidro_widget = self.tabla.cellWidget(row, 3)
+
+            if c:
+
+                # ===== AUTOCOMPLETAR =====
+
+                propie = db.query(Propietario).filter_by(
+                    codigo=c.propietario
+                ).first()
+
+                if propie:
+
+                    index_prop = propietario_combo.findData(
+                        propie.codigo
+                    )
+
+                    if index_prop >= 0:
+
+                        propietario_combo.setCurrentIndex(
+                            index_prop
+                        )
+
+                index_prod = material_combo.findData(
+                    c.producto
+                )
+
+                if index_prod >= 0:
+
+                    material_combo.setCurrentIndex(
+                        index_prod
+                    )
+
+                # ===== FECHA HIDRO =====
+
+                if c.fecha_hidrostatica:
+
+                    fecha_hidro_widget.setDate(
+                        QDate(
+                            c.fecha_hidrostatica.year,
+                            c.fecha_hidrostatica.month,
+                            c.fecha_hidrostatica.day
+                        )
+                    )
+
+                # ===== BLOQUEAR =====
+
+                propietario_combo.setEnabled(False)
+                material_combo.setEnabled(False)
+                fecha_hidro_widget.setEnabled(False)
+
+            else:
+
+                # ===== HABILITAR =====
+
+                propietario_combo.setEnabled(True)
+                material_combo.setEnabled(True)
+                fecha_hidro_widget.setEnabled(True)
+
+        finally:
+
+            db.close()
