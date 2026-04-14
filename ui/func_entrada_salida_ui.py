@@ -193,7 +193,8 @@ class FuncEntradaSalidaUI(QWidget):
                     codigo=codigo_cilindro,
                     propietario=self.propietario.currentData(), 
                     producto=self.producto.currentData(),
-                    fecha_hidrostatica=self.fecha_hidro.date().toPython()
+                    fecha_hidrostatica=self.fecha_hidro.date().toPython(),
+                    nuevo="SI"
                 )
                 db.add(nuevo_cilindro)
 

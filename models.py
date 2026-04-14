@@ -46,6 +46,7 @@ class Cilindro(Base):
     propietario = Column(String)
     producto = Column(String)
     fecha_hidrostatica = Column(Date)
+    nuevo = Column(String)  # SI / NO
 
 class Propietario(Base):
     __tablename__ = "propietarios"

@@ -2,8 +2,9 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import Qt, QDate
 
 from database import SessionLocal
-from models import EntradaSalida, Transportista, Cilindro, Usuario
+from models import EntradaSalida, Transportista, Cilindro, Usuario, Propietario, Producto, EstadoCilindro
 
+from crud import actualizar_estado
 
 class ModificarMovimientoUI(QWidget):
 
@@ -86,20 +87,20 @@ class ModificarMovimientoUI(QWidget):
             "Editar"
         )
 
-        #btn_eliminar = QPushButton(
-        #    "Eliminar"
-        #)
+        btn_eliminar = QPushButton(
+            "Eliminar"
+        )
 
         btn_editar.clicked.connect(
             self.editar_movimiento
         )
 
-        #btn_eliminar.clicked.connect(
-        #    self.eliminar_movimiento
-        #)
+        btn_eliminar.clicked.connect(
+            self.eliminar_movimiento
+        )
 
         botones.addWidget(btn_editar)
-        #botones.addWidget(btn_eliminar)
+        botones.addWidget(btn_eliminar)
 
         layout.addLayout(botones)
 
@@ -143,7 +144,6 @@ class ModificarMovimientoUI(QWidget):
                 EntradaSalida.transportista == Transportista.codigo
             )
 
-
             if guia:
 
                 query = query.filter(
@@ -166,7 +166,6 @@ class ModificarMovimientoUI(QWidget):
 
                 chk = QCheckBox()
 
-                # GUARDAR ID REAL
                 chk.setProperty(
                     "id_mov",
                     mov.id
@@ -307,13 +306,43 @@ class ModificarMovimientoUI(QWidget):
                 )
                 return
 
+            cil = db.query(
+                Cilindro
+            ).filter_by(
+                codigo=mov.cilindro
+            ).first()
+
+            if not cil:
+
+                QMessageBox.warning(
+                    self,
+                    "Error",
+                    "Cilindro no encontrado"
+                )
+                return
+
+            # VALIDACION
+
+            if cil.nuevo != "SI":
+
+                QMessageBox.warning(
+                    self,
+                    "No permitido",
+                    "Este cilindro ya fue despachado.\n"
+                    "No se puede modificar."
+                )
+
+                return
+
             dialog = QDialog(self)
 
             dialog.setWindowTitle(
-                "Editar Movimiento"
+                "Editar Movimiento y Cilindro"
             )
 
             layout = QFormLayout()
+
+            # MOVIMIENTO
 
             fecha = QDateEdit()
             fecha.setCalendarPopup(True)
@@ -334,91 +363,189 @@ class ModificarMovimientoUI(QWidget):
                 mov.nro_documento
             )
 
-            transportista = QComboBox()
+            # CILINDRO
 
-            data = db.query(
-                Transportista
-            ).all()
-
-            for t in data:
-
-                transportista.addItem(
-                    f"{t.codigo} - {t.nombre}",
-                    t.codigo
-                )
-
-            index = transportista.findData(
-                mov.cod_transportista
+            codigo_cil = QLineEdit(
+                cil.codigo
             )
 
-            if index >= 0:
+            propietario = QComboBox()
 
-                transportista.setCurrentIndex(
-                    index
+            propietarios = db.query(
+                Propietario
+            ).all()
+
+            for p in propietarios:
+
+                propietario.addItem(
+                    f"{p.codigo} - {p.nombre}",
+                    p.codigo
                 )
 
-            #tipo = QComboBox()
+            index_prop = propietario.findData(
+                cil.propietario
+            )
 
-            #tipo.addItems([
-            #    "INGRESO",
-            #    "RECARGA"
-            #])
+            if index_prop >= 0:
 
-            #tipo.setCurrentText(
-            #    mov.tipo
-            #)
+                propietario.setCurrentIndex(
+                    index_prop
+                )
+
+            producto = QComboBox()
+
+            productos = db.query(
+                Producto
+            ).all()
+
+            for prod in productos:
+
+                producto.addItem(
+                    f"{prod.codigo} - {prod.nombre}",
+                    prod.codigo
+                )
+
+            index_prod = producto.findData(
+                cil.producto
+            )
+
+            if index_prod >= 0:
+
+                producto.setCurrentIndex(
+                    index_prod
+                )
+
+            fecha_hidro = QDateEdit()
+
+            fecha_hidro.setCalendarPopup(
+                True
+            )
+
+            if cil.fecha_hidrostatica:
+
+                fecha_hidro.setDate(
+                    QDate(
+                        cil.fecha_hidrostatica.year,
+                        cil.fecha_hidrostatica.month,
+                        cil.fecha_hidrostatica.day
+                    )
+                )
 
             layout.addRow("Fecha", fecha)
             layout.addRow("Guía", guia)
             layout.addRow("Documento", documento)
-            layout.addRow("Transportista", transportista)
-            #layout.addRow("Tipo", tipo)
+
+            layout.addRow(
+                QLabel("----- CILINDRO -----")
+            )
+
+            layout.addRow(
+                "Código",
+                codigo_cil
+            )
+
+            layout.addRow(
+                "Propietario",
+                propietario
+            )
+
+            layout.addRow(
+                "Producto",
+                producto
+            )
+
+            layout.addRow(
+                "Fecha Hidrostática",
+                fecha_hidro
+            )
 
             btn_guardar = QPushButton(
                 "Guardar"
             )
 
-            layout.addRow(btn_guardar)
+            layout.addRow(
+                btn_guardar
+            )
 
-            dialog.setLayout(layout)
+            dialog.setLayout(
+                layout
+            )
 
             def guardar():
 
-                mov.fecha = (
-                    fecha.date().toPython()
+                codigo_anterior = mov.cilindro
+                nuevo_codigo = codigo_cil.text().strip()
+
+                # =========================
+                # ACTUALIZAR MOVIMIENTO
+                # =========================
+
+                mov.fecha = fecha.date().toPython()
+
+                mov.nro_guia = guia.text().strip()
+
+                mov.nro_documento = documento.text().strip()
+
+                # =========================
+                # ACTUALIZAR CILINDRO
+                # =========================
+
+                cil.codigo = nuevo_codigo
+
+                cil.propietario = propietario.currentData()
+
+                cil.producto = producto.currentData()
+
+                cil.fecha_hidrostatica = (
+                    fecha_hidro.date().toPython()
                 )
 
-                mov.nro_guia = (
-                    guia.text().strip()
-                )
+                # =========================
+                # ACTUALIZAR LISTA DE ESTADOS
+                # =========================
 
-                mov.nro_documento = (
-                    documento.text().strip()
-                )
+                estado = db.query(
+                    EstadoCilindro
+                ).filter_by(
+                    cilindro=codigo_anterior
+                ).first()
 
-                mov.cod_transportista = (
-                    transportista.currentData()
-                )
+                if estado:
 
-                mov.transportista = (
-                    transportista.currentData()
-                )
+                    estado.cilindro = nuevo_codigo
 
-                #mov.tipo = (
-                #    tipo.currentText()
-                #)
+                    estado.propietario = (
+                        propietario.currentData()
+                    )
+
+                    estado.material = (
+                        producto.currentData()
+                    )
+
+                    estado.fecha_mov = (
+                        fecha.date().toPython()
+                    )
+
+                # =========================
+                # ACTUALIZAR RELACION
+                # =========================
+
+                if codigo_anterior != nuevo_codigo:
+
+                    mov.cilindro = nuevo_codigo
 
                 db.commit()
 
                 QMessageBox.information(
                     dialog,
                     "OK",
-                    "Movimiento actualizado"
+                    "Registro actualizado"
                 )
 
                 dialog.accept()
 
                 self.buscar()
+
 
             btn_guardar.clicked.connect(
                 guardar
@@ -447,16 +574,6 @@ class ModificarMovimientoUI(QWidget):
             )
             return
 
-        confirm = QMessageBox.question(
-            self,
-            "Confirmar",
-            "¿Eliminar movimiento?"
-        )
-
-        if confirm != QMessageBox.Yes:
-
-            return
-
         db = SessionLocal()
 
         try:
@@ -476,8 +593,81 @@ class ModificarMovimientoUI(QWidget):
                 )
                 return
 
+            # =========================
+            # BUSCAR CILINDRO
+            # =========================
+
+            cil = db.query(
+                Cilindro
+            ).filter_by(
+                codigo=mov.cilindro
+            ).first()
+
+            if not cil:
+
+                QMessageBox.warning(
+                    self,
+                    "Error",
+                    "Cilindro no encontrado"
+                )
+                return
+
+            # =========================
+            # BUSCAR ESTADO
+            # =========================
+
+            estado = db.query(
+                EstadoCilindro
+            ).filter_by(
+                cilindro=mov.cilindro
+            ).first()
+
+            if not cil:
+
+                QMessageBox.warning(
+                    self,
+                    "Error",
+                    "Cilindro no encontrado"
+                )
+                return
+
+            if cil.nuevo != "SI":
+
+                QMessageBox.warning(
+                    self,
+                    "No permitido",
+                    "No se puede eliminar.\n"
+                    "El cilindro ya fue despachado."
+                )
+
+                return
+
+            confirm = QMessageBox.question(
+                self,
+                "Confirmar",
+                "¿Eliminar movimiento y cilindro?"
+            )
+
+            if confirm != QMessageBox.Yes:
+
+                return
+
+            # =========================
+            # ELIMINAR REGISTROS
+            # =========================
+
             db.delete(
                 mov
+            )
+
+            if estado:
+
+                db.delete(
+                    estado
+                )
+
+            db.delete(
+                cil
             )
 
             db.commit()
@@ -485,7 +675,7 @@ class ModificarMovimientoUI(QWidget):
             QMessageBox.information(
                 self,
                 "OK",
-                "Movimiento eliminado"
+                "Movimiento y cilindro eliminados"
             )
 
             self.buscar()

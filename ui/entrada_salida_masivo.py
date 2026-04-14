@@ -300,7 +300,8 @@ class EntradaSalidaMasivoUI(QWidget):
                             codigo=codigo,
                             propietario=propietario,
                             producto=material,
-                            fecha_hidrostatica=fecha_hidro
+                            fecha_hidrostatica=fecha_hidro,
+                            nuevo="SI"
                         )
                         db.add(nuevo_cilindro)
                     

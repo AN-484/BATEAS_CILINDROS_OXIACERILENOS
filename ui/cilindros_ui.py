@@ -46,8 +46,8 @@ class CilindrosUI(QWidget):
         layout.addWidget(btn_del)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(4)#/
-        self.table.setHorizontalHeaderLabels(["Código", "Propietario", "Producto", "Fecha Hidrostática"])#*/
+        self.table.setColumnCount(5)#/
+        self.table.setHorizontalHeaderLabels(["Código", "Propietario", "Producto", "Fecha Hidrostática", "Modo"])#*/
 
         layout.addWidget(self.table)
 
@@ -77,10 +77,11 @@ class CilindrosUI(QWidget):
                     propietar = m.nombre
             self.table.setItem(i, 2, QTableWidgetItem(propietar))#*
             self.table.setItem(i, 3, QTableWidgetItem(fecha))
+            self.table.setItem(i, 4, QTableWidgetItem(d.nuevo))
 
     def agregar(self):
         db = SessionLocal()
-        db.add(Cilindro(codigo=self.codigo.text(), propietario=self.propietario.currentData(), producto=self.producto.currentData(), fecha_hidrostatica=self.fecha_hidro.date().toPython()))#/
+        db.add(Cilindro(codigo=self.codigo.text(), propietario=self.propietario.currentData(), producto=self.producto.currentData(), fecha_hidrostatica=self.fecha_hidro.date().toPython(), nuevo="SI"))#/
         db.commit()
         db.close()
         self.cargar()

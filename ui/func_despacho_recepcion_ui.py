@@ -2,7 +2,7 @@ from PySide6.QtWidgets import *
 from datetime import datetime
 from database import SessionLocal
 from models import *
-from crud import validar_despacho, validar_recepcion, actualizar_estado
+from crud import validar_despacho, validar_recepcion, actualizar_estado, actualizar_cilindro
 from ui.reportes.vale_pdf import generar_vale
 
 from PySide6.QtWidgets import QDateEdit
@@ -212,6 +212,7 @@ class FuncDespachoRecepcionUI(QWidget):
             if tipo == "DESPACHO":
                 estado = "EN CLIENTE"
                 ubicacion = self.area.currentText()
+                actualizar_cilindro(db, cilindro)  # Actualizar fecha  nuevo = "NO"
             else:
                 estado = "VACIO"
                 ubicacion = "ALMACEN"

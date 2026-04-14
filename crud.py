@@ -1,9 +1,12 @@
 from database import SessionLocal
-from models import EstadoCilindro
+from models import EstadoCilindro, Cilindro
 from datetime import datetime
 
 def obtener_estado_actual(db, cilindro):
     return db.query(EstadoCilindro).filter_by(cilindro=cilindro).first()
+
+def obtener_cilindro_actual(db, cilindro):
+    return db.query(Cilindro).filter_by(codigo=cilindro).first()
 
 
 def actualizar_estado(db, cilindro, nuevo_estado, ubicacion, material=None, fecha_mov=None, propietario=None):
@@ -33,6 +36,10 @@ def actualizar_estado(db, cilindro, nuevo_estado, ubicacion, material=None, fech
 
     return estado
 
+def actualizar_cilindro(db, codigo):
+    cilindro = obtener_cilindro_actual(db, codigo)
+    cilindro.nuevo = "NO"
+    return cilindro
 
 def validar_despacho(db, cilindro):
     estado = obtener_estado_actual(db, cilindro)
