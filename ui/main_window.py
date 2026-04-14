@@ -229,6 +229,17 @@ class MainWindow(QMainWindow):
         menu_func.addAction(QAction("Ingreso / Recarga (Proveedor)", self, triggered=self.abrir_entrada_salida))
         menu_func.addAction(QAction("Ingreso / Recarga Masiva", self, triggered=self.abrir_entrada_salida_masiva))
         menu_func.addAction(QAction("Despacho / Devolución [Almacén]", self, triggered=self.abrir_despacho_recepcion))
+        #edictar o eliminar
+        menu_func.addSeparator()
+
+        menu_func.addAction(
+            QAction(
+                "Modificar / Eliminar Movimiento",
+                self,
+                triggered=self.abrir_modificar_movimiento
+            )
+        )
+
 
         # 📊 INFORMES
         menu_inf = menubar.addMenu("INFORMES")
@@ -268,6 +279,11 @@ class MainWindow(QMainWindow):
         #self.w = FuncDespachoRecepcionUI()
         #self.w.show()
         self.set_view(FuncDespachoRecepcionUI())
+
+    #modificar o eliminar movimiento
+    def abrir_modificar_movimiento(self):
+        from ui.modificar_movimiento_ui import ModificarMovimientoUI
+        self.set_view(ModificarMovimientoUI())
     
 
     # ================= INFORMES =================
