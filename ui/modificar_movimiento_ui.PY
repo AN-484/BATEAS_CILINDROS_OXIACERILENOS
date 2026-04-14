@@ -57,12 +57,13 @@ class ModificarMovimientoUI(QWidget):
 
         self.tabla = QTableWidget()
 
-        self.tabla.setColumnCount(9)
+        self.tabla.setColumnCount(10)
 
         self.tabla.setHorizontalHeaderLabels([
             "Sel",
             "Fecha",
             "Cilindro",
+            "Producto",
             "Fecha Hidrostática",
             "Tipo",
             "Guía",
@@ -132,7 +133,8 @@ class ModificarMovimientoUI(QWidget):
                 EntradaSalida,
                 Cilindro,
                 Usuario,
-                Transportista
+                Transportista,
+                Producto
             ).join(
                 Cilindro,
                 EntradaSalida.cilindro == Cilindro.codigo
@@ -142,6 +144,9 @@ class ModificarMovimientoUI(QWidget):
             ).join(
                 Transportista,
                 EntradaSalida.transportista == Transportista.codigo
+            ).join(
+                Producto,
+                Cilindro.producto == Producto.codigo
             )
 
             if guia:
@@ -160,7 +165,7 @@ class ModificarMovimientoUI(QWidget):
 
             self.tabla.setRowCount(0)
 
-            for row, (mov, cil, usr, trans) in enumerate(movimientos):
+            for row, (mov, cil, usr, trans, prod) in enumerate(movimientos):
 
                 self.tabla.insertRow(row)
 
@@ -197,6 +202,14 @@ class ModificarMovimientoUI(QWidget):
                     row,
                     3,
                     QTableWidgetItem(
+                        prod.nombre
+                    )
+                )
+
+                self.tabla.setItem(
+                    row,
+                    4,
+                    QTableWidgetItem(
                         str(cil.fecha_hidrostatica)
                         if cil.fecha_hidrostatica
                         else ""
@@ -205,7 +218,7 @@ class ModificarMovimientoUI(QWidget):
 
                 self.tabla.setItem(
                     row,
-                    4,
+                    5,
                     QTableWidgetItem(
                         mov.tipo
                     )
@@ -213,7 +226,7 @@ class ModificarMovimientoUI(QWidget):
 
                 self.tabla.setItem(
                     row,
-                    5,
+                    6,
                     QTableWidgetItem(
                         mov.nro_guia
                     )
@@ -221,7 +234,7 @@ class ModificarMovimientoUI(QWidget):
 
                 self.tabla.setItem(
                     row,
-                    6,
+                    7,
                     QTableWidgetItem(
                         mov.nro_documento
                     )
@@ -229,7 +242,7 @@ class ModificarMovimientoUI(QWidget):
 
                 self.tabla.setItem(
                     row,
-                    7,
+                    8,
                     QTableWidgetItem(
                         trans.nombre
                     )
@@ -237,7 +250,7 @@ class ModificarMovimientoUI(QWidget):
 
                 self.tabla.setItem(
                     row,
-                    8,
+                    9,
                     QTableWidgetItem(
                         usr.nombre
                     )
@@ -362,6 +375,30 @@ class ModificarMovimientoUI(QWidget):
             documento = QLineEdit(
                 mov.nro_documento
             )
+            # TRANSPORTISTA
+
+            transportista_combo = QComboBox()
+
+            transportistas = db.query(
+                Transportista
+            ).all()
+
+            for t in transportistas:
+
+                transportista_combo.addItem(
+                    f"{t.codigo} - {t.nombre}",
+                    t.codigo
+                )
+
+            index_trans = transportista_combo.findData(
+                mov.transportista
+            )
+
+            if index_trans >= 0:
+
+                transportista_combo.setCurrentIndex(
+                    index_trans
+                )
 
             # CILINDRO
 
@@ -434,6 +471,10 @@ class ModificarMovimientoUI(QWidget):
             layout.addRow("Fecha", fecha)
             layout.addRow("Guía", guia)
             layout.addRow("Documento", documento)
+            layout.addRow(
+                "Transportista",
+                transportista_combo
+            )
 
             layout.addRow(
                 QLabel("----- CILINDRO -----")
@@ -485,6 +526,13 @@ class ModificarMovimientoUI(QWidget):
                 mov.nro_guia = guia.text().strip()
 
                 mov.nro_documento = documento.text().strip()
+                mov.cod_transportista = (
+                    transportista_combo.currentData()
+                )
+
+                mov.transportista = (
+                    transportista_combo.currentData()
+                )
 
                 # =========================
                 # ACTUALIZAR CILINDRO
