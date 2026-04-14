@@ -394,7 +394,7 @@ class MainWindow(QMainWindow):
         self.close()
 
         # volver al login
-        self.login = LoginUI()
+        self.login = Login()
 
         self.login.show()
     
