@@ -11,6 +11,8 @@ from PySide6.QtGui import (
     QPixmap,
     QIntValidator
 )
+from utils import ruta_recurso
+
 
 from PySide6.QtCore import Qt
 
@@ -51,7 +53,17 @@ class Login(QWidget):
 
         self.logo = QLabel()
 
-        pixmap = QPixmap("img/login2.png")
+        ruta = ruta_recurso("img/login2.png")
+
+        self.setStyleSheet(f"""
+            QWidget {{
+                background-image: url({ruta});
+                background-repeat: no-repeat;
+                background-position: center;
+            }}
+        """)
+
+        pixmap = QPixmap(ruta)
 
         self.logo.setPixmap(pixmap)
 

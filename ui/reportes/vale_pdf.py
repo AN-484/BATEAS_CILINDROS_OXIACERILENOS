@@ -4,6 +4,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from datetime import datetime
+from utils import ruta_recurso
 import os
 
 def generar_vale(data, filename="vale.pdf", generar_pdf=True):
@@ -53,7 +54,17 @@ def generar_vale(data, filename="vale.pdf", generar_pdf=True):
     contenido.append(Spacer(1, 20))
 
     # Logo si existe
-    logo_path = "img/logo.png"  # Cambia esto por tu logo
+    logo_path = ruta_recurso("img/logo.png")  # Cambia esto por tu logo
+
+
+    self.setStyleSheet(f"""
+        QWidget {{
+            background-image: url({logo_path});
+            background-repeat: no-repeat;
+            background-position: center;
+        }}
+    """)
+    
     if os.path.exists(logo_path):
         img = Image(logo_path, 2*inch, 1*inch)
         img.hAlign = 'CENTER'

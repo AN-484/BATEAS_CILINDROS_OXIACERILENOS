@@ -37,6 +37,8 @@ from PySide6.QtWidgets import QToolBar
 from PySide6.QtCore import Qt
 #from PySide6.QtWidgets import QWidget
 
+from utils import ruta_recurso
+
 
 from ui.reportes.rep_estado_cilindros import ReporteEstadoCilindros
 from ui.reportes.rep_entradas_salidas import ReporteEntradasSalidas
@@ -71,8 +73,17 @@ class MainWindow(QMainWindow):
         self.panel_izq_layout = QVBoxLayout(self.panel_izq)
 
         self.logo = QLabel()
+        ruta = ruta_recurso("img/boar.jpeg")
 
-        pixmap = QPixmap("img/boar.jpeg")  # tu imagen
+        self.setStyleSheet(f"""
+            QWidget {{
+                background-image: url({ruta});
+                background-repeat: no-repeat;
+                background-position: center;
+            }}
+        """)
+
+        pixmap = QPixmap(ruta)  # tu imagen
         self.logo.setPixmap(pixmap)
         self.logo.setScaledContents(True)
 
