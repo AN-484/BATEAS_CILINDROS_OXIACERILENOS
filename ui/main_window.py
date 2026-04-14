@@ -383,7 +383,7 @@ class MainWindow(QMainWindow):
     
     def cerrar_por_inactividad(self):
 
-        from ui.login import LoginUI
+        from ui.login import Login
 
         print("Sesión cerrada por inactividad")
 
