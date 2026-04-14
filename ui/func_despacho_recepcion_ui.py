@@ -133,8 +133,12 @@ class FuncDespachoRecepcionUI(QWidget):
             #for u in db.query(Usuario).all():
             #    self.encargado.addItem(u.nombre, u.codigo)
             #    self.registrado.addItem(u.nombre, u.codigo)
+            aux = 0
             for u in db.query(Usuario).all():
+                aux += 1
                 self.encargado.addItem(u.nombre, u.codigo)
+                if aux ==2:
+                    break
 
             for p in db.query(Producto).all():
                 self.material.addItem(p.nombre, p.codigo)
