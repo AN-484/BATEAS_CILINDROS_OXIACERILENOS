@@ -93,7 +93,7 @@ class EntradaSalidaMasivoUI(QWidget):
         
         # ✅ CHECKBOX PARA GENERAR VALE PDF
         self.generar_vale = QCheckBox("Generar vale PDF para cada cilindro")
-        self.generar_vale.setChecked(True)  # Por defecto activado
+        self.generar_vale.setChecked(False)  # Por defecto activado
         layout.addWidget(self.generar_vale)
         
         # ✅ BOTONES

@@ -112,7 +112,7 @@ class FuncDespachoRecepcionUI(QWidget):
         
         # ✅ CHECKBOX PARA GENERAR VALE PDF
         self.generar_vale = QCheckBox("Generar vale PDF")
-        self.generar_vale.setChecked(True)  # Por defecto activado
+        self.generar_vale.setChecked(False)  # Por defecto activado
         layout.addRow(self.generar_vale)
        
         layout.addRow(btn)
