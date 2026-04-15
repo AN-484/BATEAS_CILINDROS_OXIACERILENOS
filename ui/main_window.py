@@ -261,6 +261,11 @@ class MainWindow(QMainWindow):
         menu_inf.addAction(QAction("Dashboard", self, triggered=self.ver_dashboard))
 
         self.aplicar_permisos()
+
+        # ⭐ AQUI AL FINAL
+        self.showMaximized()
+
+        
     # ================= DATOS =================
     def abrir_productos(self): #self.w = ProductosUI(); self.w.show()
         self.set_view(ProductosUI())
