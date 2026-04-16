@@ -1,7 +1,12 @@
 from PySide6.QtWidgets import *
-from database import SessionLocal
-from models import MovimientoDetalle, Ubicacion, Producto
 from ui.components.table_view import TableView
+
+from supabase_api import (
+    listar_movimientos_detalle,
+    listar_ubicaciones,
+    listar_productos
+)
+
 
 class KardexUI(QWidget):
     def __init__(self):
@@ -25,25 +30,40 @@ class KardexUI(QWidget):
         self.setLayout(layout)
 
     def buscar(self):
-        db = SessionLocal()
-        
         try:
-            codigo = self.codigo.text()
+            codigo = self.codigo.text().strip()
 
-            data = db.query(MovimientoDetalle).filter_by(cilindro=codigo).all()
+            data = listar_movimientos_detalle()
 
-            # Crear diccionarios de mapeo
-            areas = {a.codigo: a.nombre for a in db.query(Ubicacion).all()}
-            materiales = {p.codigo: p.nombre for p in db.query(Producto).all()}
+            if codigo:
+                data = [
+                    d for d in data
+                    if d.get("cilindro") == codigo
+                ]
+
+            areas = {
+                a.get("codigo"): a.get("nombre")
+                for a in listar_ubicaciones()
+            }
+
+            materiales = {
+                p.get("codigo"): p.get("nombre")
+                for p in listar_productos()
+            }
 
             headers = ["Fecha", "Tipo", "Área", "Material"]
 
             rows = [
-                [d.fecha, d.tipo, areas.get(d.area, d.area), materiales.get(d.material, d.material)]
+                [
+                    d.get("fecha"),
+                    d.get("tipo"),
+                    areas.get(d.get("area"), d.get("area")),
+                    materiales.get(d.get("material"), d.get("material"))
+                ]
                 for d in data
             ]
 
             self.tabla.cargar_datos(headers, rows)
-        
-        finally:
-            db.close()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"No se pudo cargar el kardex: {str(e)}")

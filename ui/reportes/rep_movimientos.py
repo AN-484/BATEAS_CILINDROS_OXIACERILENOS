@@ -1,8 +1,14 @@
 from PySide6.QtWidgets import *
-from database import SessionLocal
-from models import MovimientoDetalle, Producto, Ubicacion, Usuario
 from ui.components.table_view import TableView
 from ui.components.export_excel import exportar_excel
+
+from supabase_api import (
+    listar_movimientos_detalle,
+    listar_productos,
+    listar_ubicaciones,
+    listar_usuarios
+)
+
 
 class ReporteMovimientos(QWidget):
     def __init__(self):
@@ -11,7 +17,6 @@ class ReporteMovimientos(QWidget):
 
         layout = QVBoxLayout()
 
-        # 🔎 FILTROS - Primera fila
         filtros1 = QHBoxLayout()
 
         self.f_cilindro = QLineEdit()
@@ -36,7 +41,6 @@ class ReporteMovimientos(QWidget):
         filtros1.addWidget(self.f_tipo)
         filtros1.addWidget(btn_buscar)
 
-        # 🔎 FILTROS - Segunda fila
         filtros2 = QHBoxLayout()
 
         self.f_material = QComboBox()
@@ -47,7 +51,6 @@ class ReporteMovimientos(QWidget):
         filtros2.addWidget(self.f_material)
         filtros2.addStretch()
 
-        # 📊 TABLA
         self.tabla = TableView()
 
         btn_excel = QPushButton("Exportar Excel")
@@ -60,69 +63,94 @@ class ReporteMovimientos(QWidget):
 
         self.setLayout(layout)
 
-        self.headers = ["Fecha", "Cilindro", "Material", "Área", "Tipo", "Autorizado por", "Usuario Atendido", "Registrado por"]
+        self.headers = [
+            "Fecha",
+            "Cilindro",
+            "Material",
+            "Área",
+            "Tipo",
+            "Autorizado por",
+            "Usuario Atendido",
+            "Registrado por"
+        ]
         self.data = []
 
     def cargar_materiales(self):
-        db = SessionLocal()
-        try:
-            for p in db.query(Producto).all():
-                self.f_material.addItem(p.nombre, p.codigo)
-        finally:
-            db.close()
+        for p in sorted(listar_productos(), key=lambda x: x.get("nombre", "")):
+            self.f_material.addItem(
+                p.get("nombre", ""),
+                p.get("codigo", "")
+            )
 
     def cargar_areas(self):
-        db = SessionLocal()
-        try:
-            for u in db.query(Ubicacion).all():
-                self.f_area.addItem(u.nombre, u.codigo)
-        finally:
-            db.close()
+        for u in sorted(listar_ubicaciones(), key=lambda x: x.get("nombre", "")):
+            self.f_area.addItem(
+                u.get("nombre", ""),
+                u.get("codigo", "")
+            )
 
     def buscar(self):
-        db = SessionLocal()
-        
         try:
-            query = db.query(MovimientoDetalle)
+            resultados = listar_movimientos_detalle()
 
             if self.f_cilindro.text():
-                query = query.filter(MovimientoDetalle.cilindro.contains(self.f_cilindro.text()))
+                texto = self.f_cilindro.text().strip().lower()
+                resultados = [
+                    r for r in resultados
+                    if texto in str(r.get("cilindro", "")).lower()
+                ]
 
             if self.f_material.currentText() != "TODOS":
-                query = query.filter(MovimientoDetalle.material == self.f_material.currentData())
+                resultados = [
+                    r for r in resultados
+                    if r.get("material") == self.f_material.currentData()
+                ]
 
             if self.f_area.currentText() != "TODOS":
-                query = query.filter(MovimientoDetalle.area == self.f_area.currentData())
+                resultados = [
+                    r for r in resultados
+                    if r.get("area") == self.f_area.currentData()
+                ]
 
             if self.f_tipo.currentText() != "TODOS":
-                query = query.filter(MovimientoDetalle.tipo == self.f_tipo.currentText())
+                resultados = [
+                    r for r in resultados
+                    if r.get("tipo") == self.f_tipo.currentText()
+                ]
 
-            resultados = query.all()
-            
-            # Cargar productos, ubicaciones y usuarios para búsqueda rápida
-            productos = {p.codigo: p.nombre for p in db.query(Producto).all()}
-            ubicaciones = {u.codigo: u.nombre for u in db.query(Ubicacion).all()}
-            usuarios = {u.codigo: u.nombre for u in db.query(Usuario).all()}
+            productos = {
+                p.get("codigo"): p.get("nombre")
+                for p in listar_productos()
+            }
 
+            ubicaciones = {
+                u.get("codigo"): u.get("nombre")
+                for u in listar_ubicaciones()
+            }
+
+            usuarios = {
+                u.get("codigo"): u.get("nombre")
+                for u in listar_usuarios()
+            }
 
             self.data = [
                 [
-                    r.fecha,
-                    r.cilindro,
-                    productos.get(r.material, r.material),  # Mostrar nombre
-                    ubicaciones.get(r.area, r.area),  # Mostrar nombre
-                    r.tipo,
-                    usuarios.get(r.encargado_almacen, r.encargado_almacen),  # Mostrar nombre
-                    r.responsable_area,
-                    usuarios.get(r.registrado_por, r.registrado_por)  # Mostrar nombre
+                    r.get("fecha"),
+                    r.get("cilindro"),
+                    productos.get(r.get("material"), r.get("material")),
+                    ubicaciones.get(r.get("area"), r.get("area")),
+                    r.get("tipo"),
+                    usuarios.get(r.get("encargado_almacen"), r.get("encargado_almacen")),
+                    r.get("responsable_area"),
+                    usuarios.get(r.get("registrado_por"), r.get("registrado_por"))
                 ]
                 for r in resultados
             ]
 
             self.tabla.cargar_datos(self.headers, self.data)
-        
-        finally:
-            db.close()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"No se pudo cargar el reporte: {str(e)}")
 
     def exportar(self):
         exportar_excel(self.headers, self.data)

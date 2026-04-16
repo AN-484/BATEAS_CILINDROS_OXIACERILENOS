@@ -1,6 +1,20 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QLineEdit, QComboBox
-from database import SessionLocal
-from models import Propietario
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QLineEdit,
+    QMessageBox
+)
+
+from supabase_api import (
+    listar_propietarios,
+    crear_propietario,
+    eliminar_propietario_api
+)
+
 
 class PropietariosUI(QWidget):
     def __init__(self):
@@ -18,7 +32,6 @@ class PropietariosUI(QWidget):
         self.nombre = QLineEdit()
         self.nombre.setPlaceholderText("Propietario (LINDE, etc)")
 
-
         form.addWidget(self.codigo)
         form.addWidget(self.nombre)
 
@@ -34,8 +47,8 @@ class PropietariosUI(QWidget):
         layout.addWidget(btn_del)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(2)#/
-        self.table.setHorizontalHeaderLabels(["Código", "Propietario"])#*/
+        self.table.setColumnCount(2)
+        self.table.setHorizontalHeaderLabels(["Código", "Propietario"])
 
         layout.addWidget(self.table)
 
@@ -43,32 +56,52 @@ class PropietariosUI(QWidget):
         self.cargar()
 
     def cargar(self):
-        db = SessionLocal()
-        datos = db.query(Propietario).all()
-        db.close()
+        datos = listar_propietarios()
+
+        if not datos:
+            self.table.setRowCount(0)
+            return
+
+        datos = sorted(datos, key=lambda x: x.get("codigo", ""))
 
         self.table.setRowCount(len(datos))
 
         for i, d in enumerate(datos):
-            self.table.setItem(i, 0, QTableWidgetItem(d.codigo))
-            self.table.setItem(i, 1, QTableWidgetItem(d.nombre))
+            self.table.setItem(i, 0, QTableWidgetItem(d.get("codigo", "")))
+            self.table.setItem(i, 1, QTableWidgetItem(d.get("nombre", "")))
 
     def agregar(self):
-        db = SessionLocal()
-        db.add(Propietario(codigo=self.codigo.text(), nombre=self.nombre.text()))#/
-        db.commit()
-        db.close()
+        codigo = self.codigo.text().strip()
+        nombre = self.nombre.text().strip()
+
+        if not codigo or not nombre:
+            QMessageBox.warning(self, "Error", "Complete código y propietario")
+            return
+
+        resp = crear_propietario({
+            "codigo": codigo,
+            "nombre": nombre
+        })
+
+        if resp is None:
+            QMessageBox.warning(self, "Error", "No se pudo registrar el propietario")
+            return
+
+        self.codigo.clear()
+        self.nombre.clear()
         self.cargar()
 
     def eliminar(self):
         row = self.table.currentRow()
-        if row < 0: return
+        if row < 0:
+            return
 
         codigo = self.table.item(row, 0).text()
-        db = SessionLocal()
-        obj = db.query(Propietario).filter_by(codigo=codigo).first()
-        if obj:
-            db.delete(obj)
-            db.commit()
-        db.close()
+
+        resp = eliminar_propietario_api(codigo)
+
+        if resp is None:
+            QMessageBox.warning(self, "Error", "No se pudo eliminar el propietario")
+            return
+
         self.cargar()

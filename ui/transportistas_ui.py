@@ -1,6 +1,20 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QLineEdit
-from database import SessionLocal
-from models import Transportista
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QLineEdit,
+    QMessageBox
+)
+
+from supabase_api import (
+    listar_transportistas,
+    crear_transportista,
+    eliminar_transportista_api
+)
+
 
 class TransportistasUI(QWidget):
     def __init__(self):
@@ -46,30 +60,43 @@ class TransportistasUI(QWidget):
         self.cargar()
 
     def cargar(self):
-        db = SessionLocal()
-        datos = db.query(Transportista).all()
-        db.close()
+        datos = listar_transportistas()
+
+        if not datos:
+            self.table.setRowCount(0)
+            return
+
+        datos = sorted(datos, key=lambda x: x.get("codigo", ""))
 
         self.table.setRowCount(len(datos))
 
         for i, d in enumerate(datos):
-            self.table.setItem(i, 0, QTableWidgetItem(d.codigo))
-            self.table.setItem(i, 1, QTableWidgetItem(d.nombre))
-            self.table.setItem(i, 2, QTableWidgetItem(d.ruc))
+            self.table.setItem(i, 0, QTableWidgetItem(d.get("codigo", "")))
+            self.table.setItem(i, 1, QTableWidgetItem(d.get("nombre", "")))
+            self.table.setItem(i, 2, QTableWidgetItem(d.get("ruc", "")))
 
     def agregar(self):
-        db = SessionLocal()
+        codigo = self.codigo.text().strip()
+        nombre = self.nombre.text().strip()
+        ruc = self.ruc.text().strip()
 
-        nuevo = Transportista(
-            codigo=self.codigo.text(),
-            nombre=self.nombre.text(),
-            ruc=self.ruc.text()
-        )
+        if not codigo or not nombre or not ruc:
+            QMessageBox.warning(self, "Error", "Complete código, nombre y RUC")
+            return
 
-        db.add(nuevo)
-        db.commit()
-        db.close()
+        resp = crear_transportista({
+            "codigo": codigo,
+            "nombre": nombre,
+            "ruc": ruc
+        })
 
+        if resp is None:
+            QMessageBox.warning(self, "Error", "No se pudo registrar el transportista")
+            return
+
+        self.codigo.clear()
+        self.nombre.clear()
+        self.ruc.clear()
         self.cargar()
 
     def eliminar(self):
@@ -79,11 +106,10 @@ class TransportistasUI(QWidget):
 
         codigo = self.table.item(row, 0).text()
 
-        db = SessionLocal()
-        obj = db.query(Transportista).filter_by(codigo=codigo).first()
-        if obj:
-            db.delete(obj)
-            db.commit()
-        db.close()
+        resp = eliminar_transportista_api(codigo)
+
+        if resp is None:
+            QMessageBox.warning(self, "Error", "No se pudo eliminar el transportista")
+            return
 
         self.cargar()

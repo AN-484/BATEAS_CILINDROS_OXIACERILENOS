@@ -1,6 +1,20 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QLineEdit
-from database import SessionLocal
-from models import Almacen
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QLineEdit,
+    QMessageBox
+)
+
+from supabase_api import (
+    listar_almacenes,
+    crear_almacen,
+    eliminar_almacen_api
+)
+
 
 class AlmacenesUI(QWidget):
     def __init__(self):
@@ -41,32 +55,52 @@ class AlmacenesUI(QWidget):
         self.cargar()
 
     def cargar(self):
-        db = SessionLocal()
-        datos = db.query(Almacen).all()
-        db.close()
+        datos = listar_almacenes()
+
+        if not datos:
+            self.table.setRowCount(0)
+            return
+
+        datos = sorted(datos, key=lambda x: x.get("codigo", ""))
 
         self.table.setRowCount(len(datos))
 
         for i, d in enumerate(datos):
-            self.table.setItem(i, 0, QTableWidgetItem(d.codigo))
-            self.table.setItem(i, 1, QTableWidgetItem(d.nombre))
+            self.table.setItem(i, 0, QTableWidgetItem(d.get("codigo", "")))
+            self.table.setItem(i, 1, QTableWidgetItem(d.get("nombre", "")))
 
     def agregar(self):
-        db = SessionLocal()
-        db.add(Almacen(codigo=self.codigo.text(), nombre=self.nombre.text()))
-        db.commit()
-        db.close()
+        codigo = self.codigo.text().strip()
+        nombre = self.nombre.text().strip()
+
+        if not codigo or not nombre:
+            QMessageBox.warning(self, "Error", "Complete código y nombre")
+            return
+
+        resp = crear_almacen({
+            "codigo": codigo,
+            "nombre": nombre
+        })
+
+        if resp is None:
+            QMessageBox.warning(self, "Error", "No se pudo registrar el almacén")
+            return
+
+        self.codigo.clear()
+        self.nombre.clear()
         self.cargar()
 
     def eliminar(self):
         row = self.table.currentRow()
-        if row < 0: return
+        if row < 0:
+            return
 
         codigo = self.table.item(row, 0).text()
-        db = SessionLocal()
-        obj = db.query(Almacen).filter_by(codigo=codigo).first()
-        if obj:
-            db.delete(obj)
-            db.commit()
-        db.close()
+
+        resp = eliminar_almacen_api(codigo)
+
+        if resp is None:
+            QMessageBox.warning(self, "Error", "No se pudo eliminar el almacén")
+            return
+
         self.cargar()

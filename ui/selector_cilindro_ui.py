@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import *
-from database import SessionLocal
-from models import EstadoCilindro
+from supabase_api import obtener_registros
+
 
 class SelectorCilindroUI(QDialog):
 
@@ -14,31 +14,38 @@ class SelectorCilindroUI(QDialog):
         self.table = QTableWidget()
         self.table.setColumnCount(3)
 
-        db = SessionLocal()
-        
-        try:
-            if tipo == "DESPACHO":
+        # 🔥 CONSULTA POR API
+        if tipo == "DESPACHO":
 
-                self.table.setHorizontalHeaderLabels(
-                    ["Seleccionar", "Cilindro", "Estado"]
-                )
+            self.table.setHorizontalHeaderLabels(
+                ["Seleccionar", "Cilindro", "Estado"]
+            )
 
-                datos = db.query(EstadoCilindro).filter_by(
-                    material=material,
-                    estado="STOCK"
-                ).all()
+            datos = obtener_registros(
+                "estado_cilindros",
+                filtros={
+                    "material": f"eq.{material}",
+                    "estado": "eq.STOCK"
+                }
+            )
 
-            else:
+        else:
 
-                self.table.setHorizontalHeaderLabels(
-                    ["Seleccionar", "Cilindro", "Área"]
-                )
+            self.table.setHorizontalHeaderLabels(
+                ["Seleccionar", "Cilindro", "Área"]
+            )
 
-                datos = db.query(EstadoCilindro).filter_by(
-                    material=material,
-                    estado="EN CLIENTE"
-                ).all()
+            datos = obtener_registros(
+                "estado_cilindros",
+                filtros={
+                    "material": f"eq.{material}",
+                    "estado": "eq.EN CLIENTE"
+                }
+            )
 
+        if not datos:
+            self.table.setRowCount(0)
+        else:
             self.table.setRowCount(len(datos))
 
             for i, d in enumerate(datos):
@@ -46,15 +53,12 @@ class SelectorCilindroUI(QDialog):
                 radio = QRadioButton()
 
                 self.table.setCellWidget(i, 0, radio)
-                self.table.setItem(i, 1, QTableWidgetItem(d.cilindro))
+                self.table.setItem(i, 1, QTableWidgetItem(d.get("cilindro", "")))
 
                 if tipo == "DESPACHO":
-                    self.table.setItem(i, 2, QTableWidgetItem(d.estado))
+                    self.table.setItem(i, 2, QTableWidgetItem(d.get("estado", "")))
                 else:
-                    self.table.setItem(i, 2, QTableWidgetItem(d.ubicacion))
-        
-        finally:
-            db.close()
+                    self.table.setItem(i, 2, QTableWidgetItem(d.get("ubicacion", "")))
 
         layout.addWidget(self.table)
 
@@ -73,12 +77,11 @@ class SelectorCilindroUI(QDialog):
 
             radio = self.table.cellWidget(row, 0)
 
-            if radio.isChecked():
+            if radio and radio.isChecked():
 
                 self.cilindro_seleccionado = self.table.item(row, 1).text()
 
                 self.accept()
-
                 return
 
         QMessageBox.warning(self, "Error", "Seleccione un cilindro")

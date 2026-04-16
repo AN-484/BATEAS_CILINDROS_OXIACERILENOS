@@ -1,6 +1,20 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QLineEdit
-from database import SessionLocal
-from models import Producto
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QLineEdit,
+    QMessageBox
+)
+
+from supabase_api import (
+    listar_productos,
+    crear_producto,
+    eliminar_producto_api
+)
+
 
 class ProductosUI(QWidget):
     def __init__(self):
@@ -46,30 +60,43 @@ class ProductosUI(QWidget):
         self.cargar()
 
     def cargar(self):
-        db = SessionLocal()
-        datos = db.query(Producto).all()
-        db.close()
+        datos = listar_productos()
+
+        if not datos:
+            self.table.setRowCount(0)
+            return
+
+        datos = sorted(datos, key=lambda x: x.get("codigo", ""))
 
         self.table.setRowCount(len(datos))
 
         for i, d in enumerate(datos):
-            self.table.setItem(i, 0, QTableWidgetItem(d.codigo))
-            self.table.setItem(i, 1, QTableWidgetItem(d.nombre))
-            self.table.setItem(i, 2, QTableWidgetItem(d.medida))
+            self.table.setItem(i, 0, QTableWidgetItem(d.get("codigo", "")))
+            self.table.setItem(i, 1, QTableWidgetItem(d.get("nombre", "")))
+            self.table.setItem(i, 2, QTableWidgetItem(d.get("medida", "")))
 
     def agregar(self):
-        db = SessionLocal()
+        codigo = self.codigo.text().strip()
+        nombre = self.nombre.text().strip()
+        medida = self.medida.text().strip()
 
-        nuevo = Producto(
-            codigo=self.codigo.text(),
-            nombre=self.nombre.text(),
-            medida=self.medida.text()
-        )
+        if not codigo or not nombre or not medida:
+            QMessageBox.warning(self, "Error", "Complete código, nombre y medida")
+            return
 
-        db.add(nuevo)
-        db.commit()
-        db.close()
+        resp = crear_producto({
+            "codigo": codigo,
+            "nombre": nombre,
+            "medida": medida
+        })
 
+        if resp is None:
+            QMessageBox.warning(self, "Error", "No se pudo registrar el producto")
+            return
+
+        self.codigo.clear()
+        self.nombre.clear()
+        self.medida.clear()
         self.cargar()
 
     def eliminar(self):
@@ -79,11 +106,10 @@ class ProductosUI(QWidget):
 
         codigo = self.table.item(row, 0).text()
 
-        db = SessionLocal()
-        obj = db.query(Producto).filter_by(codigo=codigo).first()
-        if obj:
-            db.delete(obj)
-            db.commit()
-        db.close()
+        resp = eliminar_producto_api(codigo)
+
+        if resp is None:
+            QMessageBox.warning(self, "Error", "No se pudo eliminar el producto")
+            return
 
         self.cargar()

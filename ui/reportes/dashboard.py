@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import *
-from database import SessionLocal
-from models import EstadoCilindro
+
+from supabase_api import obtener_registros
+
 
 class DashboardUI(QWidget):
     def __init__(self):
@@ -34,18 +35,42 @@ class DashboardUI(QWidget):
         self.cargar()
 
     def cargar(self):
-        db = SessionLocal()
-        
         try:
-            data = db.query(EstadoCilindro).all()
+            data = obtener_registros("estado_cilindros")
 
             total = len(data)
-            disponible = sum(1 for d in data if d.estado == "STOCK")
-            cliente = sum(1 for d in data if d.estado == "EN CLIENTE")
-            proveedor = sum(1 for d in data if d.estado == "EN PROVEEDOR")
-            vacio = sum(1 for d in data if d.estado == "VACIO")
-            linde = sum(1 for d in data if d.propietario == "PP02" and d.estado != "EN PROVEEDOR")
-            bateas = sum(1 for d in data if d.propietario == "PP01" and d.estado != "EN PROVEEDOR")
+
+            disponible = sum(
+                1 for d in data
+                if d.get("estado") == "STOCK"
+            )
+
+            cliente = sum(
+                1 for d in data
+                if d.get("estado") == "EN CLIENTE"
+            )
+
+            proveedor = sum(
+                1 for d in data
+                if d.get("estado") == "EN PROVEEDOR"
+            )
+
+            vacio = sum(
+                1 for d in data
+                if d.get("estado") == "VACIO"
+            )
+
+            linde = sum(
+                1 for d in data
+                if d.get("propietario") == "PP02"
+                and d.get("estado") != "EN PROVEEDOR"
+            )
+
+            bateas = sum(
+                1 for d in data
+                if d.get("propietario") == "PP01"
+                and d.get("estado") != "EN PROVEEDOR"
+            )
 
             self.lbl_total.setText(f"Total cilindros: {total}")
             self.lbl_disponible.setText(f"Disponibles: {disponible}")
@@ -54,6 +79,6 @@ class DashboardUI(QWidget):
             self.lbl_vacio.setText(f"Vacíos: {vacio}")
             self.lbl_LINDE.setText(f"Cilindros Actuales de LINDE: {linde}")
             self.lbl_BATEAS.setText(f"Cilindros Actuales de BATEAS: {bateas}")
-        
-        finally:
-            db.close()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"No se pudo cargar dashboard: {str(e)}")

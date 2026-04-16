@@ -1,8 +1,14 @@
 from PySide6.QtWidgets import *
-from database import SessionLocal
-from models import EntradaSalida, Transportista, Usuario, Cilindro
 from ui.components.table_view import TableView
 from ui.components.export_excel import exportar_excel
+
+from supabase_api import (
+    listar_entradas_salidas,
+    listar_transportistas,
+    listar_usuarios,
+    listar_cilindros
+)
+
 
 class ReporteEntradasSalidas(QWidget):
     def __init__(self):
@@ -11,7 +17,7 @@ class ReporteEntradasSalidas(QWidget):
 
         layout = QVBoxLayout()
 
-        # 🔍 filtro
+        # 🔍 filtros
         self.filtro = QLineEdit()
         self.filtro.setPlaceholderText("Buscar por n° de guía...")
 
@@ -35,50 +41,77 @@ class ReporteEntradasSalidas(QWidget):
 
         self.setLayout(layout)
 
-        self.headers = ["Fecha", "Guía","N° Documento", "Cilindro", "F. Hidrostática", "Transportista", "Tipo", "Usuario"]
+        self.headers = [
+            "Fecha",
+            "Guía",
+            "N° Documento",
+            "Cilindro",
+            "F. Hidrostática",
+            "Transportista",
+            "Tipo",
+            "Usuario"
+        ]
+
         self.data = []
 
         self.cargar_datos()
 
     def cargar_datos(self):
-        db = SessionLocal()
-        
+
         try:
-            texto = self.filtro.text()
-            texto_doc = self.filtro_nro_documento.text()
+            texto = self.filtro.text().strip()
+            texto_doc = self.filtro_nro_documento.text().strip()
 
-            query = db.query(EntradaSalida)
+            resultados = listar_entradas_salidas()
 
+            # 🔍 FILTROS
             if texto:
-                query = query.filter(EntradaSalida.nro_guia.contains(texto))
+                resultados = [
+                    r for r in resultados
+                    if texto.lower() in str(r.get("nro_guia", "")).lower()
+                ]
+
             elif texto_doc:
-                query = query.filter(EntradaSalida.nro_documento.contains(texto_doc))
+                resultados = [
+                    r for r in resultados
+                    if texto_doc.lower() in str(r.get("nro_documento", "")).lower()
+                ]
 
-            resultados = query.all()
-            
-            # Cargar transportistas y usuarios para búsqueda rápida
-            transportistas = {t.codigo: t.nombre for t in db.query(Transportista).all()}
-            usuarios = {u.codigo: u.nombre for u in db.query(Usuario).all()}
-            cilindros = {c.codigo: c.fecha_hidrostatica for c in db.query(Cilindro).all()}
+            # 🔥 DICCIONARIOS (join manual)
+            transportistas = {
+                t.get("codigo"): t.get("nombre")
+                for t in listar_transportistas()
+            }
 
+            usuarios = {
+                u.get("codigo"): u.get("nombre")
+                for u in listar_usuarios()
+            }
+
+            cilindros = {
+                c.get("codigo"): c.get("fecha_hidrostatica")
+                for c in listar_cilindros()
+            }
+
+            # 🔥 ARMAR DATA
             self.data = [
                 [
-                    r.fecha,
-                    r.nro_guia,
-                    r.nro_documento,
-                    r.cilindro,
-                    cilindros.get(r.cilindro),
-                    transportistas.get(r.transportista, r.transportista),  # Mostrar nombre
-                    r.tipo,
-                    usuarios.get(r.registrado_por, r.registrado_por)  # Mostrar nombre
+                    r.get("fecha"),
+                    r.get("nro_guia"),
+                    r.get("nro_documento"),
+                    r.get("cilindro"),
+                    cilindros.get(r.get("cilindro")),
+                    transportistas.get(r.get("transportista"), r.get("transportista")),
+                    r.get("tipo"),
+                    usuarios.get(r.get("registrado_por"), r.get("registrado_por"))
                 ]
                 for r in resultados
             ]
 
             self.tabla.cargar_datos(self.headers, self.data)
-        
-        finally:
-            db.close()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"No se pudo cargar datos: {str(e)}")
 
     def exportar(self):
         exportar_excel(self.headers, self.data)

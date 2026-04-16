@@ -13,13 +13,17 @@ from PySide6.QtGui import (
 )
 from utils import ruta_recurso
 
-
 from PySide6.QtCore import Qt
 
-from database import SessionLocal
-from models import Usuario
+# ❌ ELIMINADO
+# from database import SessionLocal
+# from models import Usuario
+
 from ui.main_window import MainWindow
 from session import set_usuario
+
+# ✅ IMPORTAMOS API
+from supabase_api import login_usuario
 
 
 class Login(QWidget):
@@ -27,32 +31,15 @@ class Login(QWidget):
     def __init__(self):
         super().__init__()
 
-        # ===== CONFIGURACION DE VENTANA =====
-
         self.setWindowTitle("INGRESAR")
-
-        # tamaño fijo profesional
         self.setFixedSize(420, 520)
 
-        # ===== LAYOUT =====
-
         layout = QVBoxLayout()
-
         layout.setAlignment(Qt.AlignCenter)
-
         layout.setSpacing(15)
-
-        layout.setContentsMargins(
-            40,
-            40,
-            40,
-            40
-        )
-
-        # ===== IMAGEN / LOGO =====
+        layout.setContentsMargins(40, 40, 40, 40)
 
         self.logo = QLabel()
-
         ruta = ruta_recurso("img/login2.png")
 
         self.setStyleSheet(f"""
@@ -64,23 +51,13 @@ class Login(QWidget):
         """)
 
         pixmap = QPixmap(ruta)
-
         self.logo.setPixmap(pixmap)
-
         self.logo.setScaledContents(True)
-
         self.logo.setFixedHeight(180)
-
         self.logo.setAlignment(Qt.AlignCenter)
 
-        # ===== TITULO =====
-
-        self.titulo = QLabel(
-            "Sistema de Control de Cilindros"
-        )
-        self.titulo2 = QLabel(
-            "Ingrese su DNI:"
-        )
+        self.titulo = QLabel("Sistema de Control de Cilindros")
+        self.titulo2 = QLabel("Ingrese su DNI:")
 
         self.titulo.setAlignment(Qt.AlignCenter)
         self.titulo2.setAlignment(Qt.AlignCenter)
@@ -93,26 +70,11 @@ class Login(QWidget):
             }
         """)
 
-        # ===== CAMPO DNI =====
-
         self.dni = QLineEdit()
-        # solo 8 caracteres
-        
-
         self.dni.setPlaceholderText("DNI")
         self.dni.setMaxLength(8)
-
-        
-
-        # solo números
-        self.dni.setValidator(
-            QIntValidator(0, 99999999)
-        )
-
-        # centrado
-        self.dni.setAlignment(
-            Qt.AlignCenter
-        )
+        self.dni.setValidator(QIntValidator(0, 99999999))
+        self.dni.setAlignment(Qt.AlignCenter)
 
         self.dni.setStyleSheet("""
             QLineEdit {
@@ -123,11 +85,7 @@ class Login(QWidget):
             }
         """)
 
-        # ===== BOTON INGRESAR =====
-
-        self.btn = QPushButton(
-            "Ingresar"
-        )
+        self.btn = QPushButton("Ingresar")
 
         self.btn.setStyleSheet("""
             QPushButton {
@@ -144,22 +102,11 @@ class Login(QWidget):
             }
         """)
 
-        # ENTER ejecuta login
-        self.btn.clicked.connect(
-            self.login
-        )
-
-        self.dni.returnPressed.connect(
-            self.login
-        )
-
-        # ===== MENSAJE =====
+        self.btn.clicked.connect(self.login)
+        self.dni.returnPressed.connect(self.login)
 
         self.msg = QLabel("")
-
-        self.msg.setAlignment(
-            Qt.AlignCenter
-        )
+        self.msg.setAlignment(Qt.AlignCenter)
 
         self.msg.setStyleSheet("""
             QLabel {
@@ -168,27 +115,17 @@ class Login(QWidget):
             }
         """)
 
-        # ===== AGREGAR AL LAYOUT =====
-
         layout.addWidget(self.logo)
-
         layout.addSpacing(10)
-
         layout.addWidget(self.titulo)
         layout.addSpacing(15)
         layout.addWidget(self.titulo2)
-
         layout.addSpacing(1)
-
         layout.addWidget(self.dni)
-
         layout.addWidget(self.btn)
-
         layout.addWidget(self.msg)
 
         self.setLayout(layout)
-
-        # foco directo al DNI
         self.dni.setFocus()
 
     # ===== LOGIN =====
@@ -197,47 +134,29 @@ class Login(QWidget):
 
         dni_ingresado = self.dni.text().strip()
 
-        # validar longitud exacta
         if len(dni_ingresado) != 8:
-
             QMessageBox.warning(
                 self,
                 "Error",
                 "El DNI debe tener 8 dígitos"
             )
-
             return
 
-        db = SessionLocal()
+        # ✅ USAMOS API
+        usuario = login_usuario(dni_ingresado)
 
-        try:
+        if usuario:
 
-            usuario = db.query(
-                Usuario
-            ).filter_by(
-                dni=dni_ingresado
-            ).first()
+            # guardar sesión (dict)
+            set_usuario(usuario)
 
-            if usuario:
+            # abrir sistema
+            self.main = MainWindow(
+                usuario["nombre"]  # 👈 importante
+            )
 
-                # guardar sesión
-                set_usuario(usuario)
+            self.main.show()
+            self.close()
 
-                # abrir sistema
-                self.main = MainWindow(
-                    usuario.nombre
-                )
-
-                self.main.show()
-
-                self.close()
-
-            else:
-
-                self.msg.setText(
-                    "❌ DNI no registrado"
-                )
-
-        finally:
-
-            db.close()
+        else:
+            self.msg.setText("❌ DNI no registrado")
