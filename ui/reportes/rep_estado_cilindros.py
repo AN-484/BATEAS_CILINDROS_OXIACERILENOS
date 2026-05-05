@@ -168,14 +168,29 @@ class ReporteEstadoCilindros(QWidget):
             colores_alerta = []
 
             for r in resultados:
-                fecha_hidro = cilindros.get(r.get("cilindro"))
-                alerta_texto, color = self.calcular_alerta_hidro(fecha_hidro)
+                #1#fecha_hidro = cilindros.get(r.get("cilindro"))
+                fecha_hidro_raw = cilindros.get(r.get("cilindro"))
+
+                fecha_hidro = ""
+
+                if fecha_hidro_raw:
+                    try:
+                        fecha_obj = datetime.strptime(str(fecha_hidro_raw), "%Y-%m-%d")
+                        fecha_hidro = fecha_obj.strftime("%m/%Y")  # 👈 SOLO MES/AÑO
+                    except:
+                        fecha_hidro = str(fecha_hidro_raw)
+                #1#
+                #2#alerta_texto, color = self.calcular_alerta_hidro(fecha_hidro)
+                # IMPORTANTE:
+                # Para semáforo usa la fecha original
+                alerta_texto, color = self.calcular_alerta_hidro(fecha_hidro_raw)
+                #2#
 
                 self.data.append([
                     r.get("cilindro"),
                     propietarios.get(r.get("propietario"), r.get("propietario")) if r.get("propietario") else "N/A",
                     productos.get(r.get("material"), r.get("material")),
-                    fecha_hidro,
+                    fecha_hidro,#
                     alerta_texto,
                     r.get("estado"),
                     r.get("fecha_mov"),
@@ -187,14 +202,14 @@ class ReporteEstadoCilindros(QWidget):
             self.tabla.cargar_datos(self.headers, self.data)
 
             # ================= ANCHOS =================
-            self.tabla.setColumnWidth(0, 120)
-            self.tabla.setColumnWidth(1, 180)
-            self.tabla.setColumnWidth(2, 320)  # material más amplio
-            self.tabla.setColumnWidth(3, 130)
-            self.tabla.setColumnWidth(4, 130)
-            self.tabla.setColumnWidth(5, 120)
-            self.tabla.setColumnWidth(6, 120)
-            self.tabla.setColumnWidth(7, 180)
+            self.tabla.setColumnWidth(0, 110)
+            self.tabla.setColumnWidth(1, 100)
+            self.tabla.setColumnWidth(2, 280)  # material más amplio
+            self.tabla.setColumnWidth(3, 120)
+            self.tabla.setColumnWidth(4, 120)
+            self.tabla.setColumnWidth(5, 100)
+            self.tabla.setColumnWidth(6, 100)
+            self.tabla.setColumnWidth(7, 120)
 
             # ================= COLOREAR ALERTA =================
             for row, color in enumerate(colores_alerta):
