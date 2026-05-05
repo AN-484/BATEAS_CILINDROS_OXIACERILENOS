@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
         self.panel_izq_layout = QVBoxLayout(self.panel_izq)
 
         self.logo = QLabel()
-        ruta = ruta_recurso("img/boar.jpeg")
+        ruta = ruta_recurso("img/boar2.png")
 
         self.setStyleSheet(f"""
             QWidget {{
