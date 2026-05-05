@@ -25,6 +25,7 @@ from ui.propietarios_ui import PropietariosUI
 
 # FUNCIONES
 from ui.func_despacho_recepcion_ui import FuncDespachoRecepcionUI
+from ui.despacho_recepcion_masivo_ui import DespachoRecepcionMasivoUI
 from ui.func_entrada_salida_ui import FuncEntradaSalidaUI
 from ui.entrada_salida_masivo import EntradaSalidaMasivoUI
 
@@ -189,8 +190,9 @@ class MainWindow(QMainWindow):
 
         menu_func = menubar.addMenu("FUNCIONES")
         menu_func.addAction(QAction("Ingreso / Recarga (Proveedor)", self, triggered=self.abrir_entrada_salida))
-        menu_func.addAction(QAction("Ingreso / Recarga Masiva", self, triggered=self.abrir_entrada_salida_masiva))
+        menu_func.addAction(QAction("Ingreso / Recarga |Masiva|", self, triggered=self.abrir_entrada_salida_masiva))
         menu_func.addAction(QAction("Despacho / Devolución [Almacén]", self, triggered=self.abrir_despacho_recepcion))
+        menu_func.addAction(QAction("Despacho / Devolución [Almacén] |Masiva|", self, triggered=self.abrir_despacho_recepcion_masiva))
         menu_func.addSeparator()
 
         menu_func.addAction(
@@ -238,6 +240,9 @@ class MainWindow(QMainWindow):
     def abrir_entrada_salida_masiva(self):
         self.set_view(EntradaSalidaMasivoUI())
 
+    def abrir_despacho_recepcion_masiva(self):
+        self.set_view(DespachoRecepcionMasivoUI())
+
     def abrir_despacho_recepcion(self):
         self.set_view(FuncDespachoRecepcionUI())
 
@@ -279,6 +284,7 @@ class MainWindow(QMainWindow):
             "FuncEntradaSalidaUI": "Ingreso / Recarga",
             "EntradaSalidaMasivoUI": "Ingreso / Recarga Masiva",
             "FuncDespachoRecepcionUI": "Despacho / Devolución",
+            "DespachoRecepcionMasivoUI": "Despacho / Devolución Masiva",
             "ReporteEntradasSalidas": "Reporte de Ingresos / Recargas",
             "ReporteEstadoCilindros": "Estado de Cilindros",
             "ReporteMovimientos": "Búsqueda Avanzada - Despachos / Devoluciones",
