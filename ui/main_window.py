@@ -111,7 +111,7 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.panel_der)
 
         self.timer_inactividad = QTimer()
-        self.timer_inactividad.setInterval(10 * 60 * 1000)
+        self.timer_inactividad.setInterval(30 * 60 * 1000)
         self.timer_inactividad.timeout.connect(self.cerrar_por_inactividad)
         self.timer_inactividad.start()
 
