@@ -19,7 +19,7 @@ def app_icon():
     """
     Icono global de la aplicación
     """
-    ruta = "img/logo.ico"
+    ruta = "img/logo2.ico"
 
     
     return QIcon(ruta_recurso(ruta))
