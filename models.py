@@ -16,6 +16,7 @@ class Usuario(Base):
     dni = Column(String(8), unique=True, nullable=False)
     nombre = Column(String)
     cargo = Column(String)
+    usu = Column(String)
 
 # 📦 MAESTROS
 class Producto(Base):

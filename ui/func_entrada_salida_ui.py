@@ -200,7 +200,7 @@ class FuncEntradaSalidaUI(QWidget):
                 "nro_documento": self.nro_documento.text().strip(),
                 "cilindro": codigo_cilindro,
                 "producto": self.producto.currentData(),
-                "cod_transportista": self.transportista.currentData(),
+                #"cod_transportista": self.transportista.currentData(),
                 "transportista": self.transportista.currentData(),
                 "tipo": movimiento,
                 "registrado_por": usuario_actual.codigo

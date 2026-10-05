@@ -1,8 +1,7 @@
 import requests
 
 SUPABASE_URL = "https://qqnycxnnlzevniaxcbqf.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxbnljeG5ubHpldm5pYXhjYnFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTY1NjksImV4cCI6MjA5MTc3MjU2OX0.6gJU_cGm6ESHhD9IL0vbUHG-R1kajoCWnU0oXXlCk2Y"
-
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxbnljeG5ubHpldm5pYXhjYnFmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjE5NjU2OSwiZXhwIjoyMDkxNzcyNTY5fQ.d64LrZI5gEWm6sNmtdAZ2G1YpCUcIKqIAsLKTGB39iA"
 HEADERS = {
     "apikey": SUPABASE_KEY,
     "Authorization": f"Bearer {SUPABASE_KEY}",

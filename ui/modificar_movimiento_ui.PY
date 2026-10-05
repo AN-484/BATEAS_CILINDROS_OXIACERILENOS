@@ -256,7 +256,7 @@ class ModificarMovimientoUI(QWidget):
                         "fecha": fecha.date().toPython().strftime("%Y-%m-%d"),
                         "nro_guia": guia.text().strip(),
                         "nro_documento": documento.text().strip(),
-                        "cod_transportista": transportista_combo.currentData(),
+                        #"cod_transportista": transportista_combo.currentData(),
                         "transportista": transportista_combo.currentData(),
                         "cilindro": nuevo_codigo
                     }

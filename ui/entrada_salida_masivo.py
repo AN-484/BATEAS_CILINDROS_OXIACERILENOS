@@ -283,7 +283,7 @@ class EntradaSalidaMasivoUI(QWidget):
                         "nro_documento": nro_documento,
                         "cilindro": codigo,
                         "producto": material,
-                        "cod_transportista": transportista,
+                        #"cod_transportista": transportista,
                         "transportista": transportista,
                         "tipo": movimiento,
                         "registrado_por": usuario
