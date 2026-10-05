@@ -123,10 +123,37 @@ class Login(QWidget):
         layout.addSpacing(1)
         layout.addWidget(self.dni)
         layout.addWidget(self.btn)
+
+        self.btn_local = QPushButton("LOCAL")
+        self.btn_local.setStyleSheet("""
+            QPushButton {
+                background-color: #7F8C8D;
+                color: white;
+                font-size: 13px;
+                padding: 8px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #5F6A6A;
+            }
+        """)
+        self.btn_local.clicked.connect(self.abrir_local)
+        layout.addWidget(self.btn_local)
+
         layout.addWidget(self.msg)
 
         self.setLayout(layout)
         self.dni.setFocus()
+
+    # ===== MODO LOCAL =====
+
+    def abrir_local(self):
+        from local.menu_local import MenuLocal
+
+        self.menu_local = MenuLocal()
+        self.menu_local.show()
+        self.close()
 
     # ===== LOGIN =====
 
