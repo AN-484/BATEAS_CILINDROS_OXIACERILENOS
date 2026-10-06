@@ -3,11 +3,11 @@ import os
 import fitz
 
 from PySide6.QtCore import Qt, QBuffer, QByteArray, QIODevice, QPoint, QRectF, QSize
-from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPen, QPixmap
+from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPen, QPixmap, QTransform
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QGroupBox, QFormLayout, QPushButton,
     QLabel, QSpinBox, QDoubleSpinBox, QComboBox, QLineEdit, QFileDialog,
-    QMessageBox, QGraphicsView, QGraphicsPixmapItem, QMenu
+    QMessageBox, QGraphicsView, QGraphicsPixmapItem, QMenu, QGraphicsDropShadowEffect
 )
 
 from utils import app_icon, ruta_recurso
@@ -101,6 +101,7 @@ class Vista(QGraphicsView):
         super().__init__()
         self.editor = editor
         self.setAcceptDrops(True)
+        self.setBackgroundBrush(QColor("#8E99A6"))
         self.setRenderHint(QPainter.Antialiasing)
         self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
@@ -199,6 +200,9 @@ class SDSEditor(QWidget):
         f = QVBoxLayout(g)
         b_abrir = QPushButton("Abrir PDF / imagen")
         b_abrir.clicked.connect(self.abrir)
+        self.b_nueva = QPushButton("Nuevo PDF / imagen")
+        self.b_nueva.setEnabled(False)
+        self.b_nueva.clicked.connect(self.abrir)
         fila = QHBoxLayout()
         self.b_ant = QPushButton("<")
         self.b_sig = QPushButton(">")
@@ -210,6 +214,7 @@ class SDSEditor(QWidget):
         fila.addWidget(self.l_pag, 1)
         fila.addWidget(self.b_sig)
         f.addWidget(b_abrir)
+        f.addWidget(self.b_nueva)
         f.addLayout(fila)
         v.addWidget(g)
 
@@ -331,16 +336,33 @@ class SDSEditor(QWidget):
         v.addStretch()
 
     # ---------- documento ----------
+    def _confirmar_descartar(self):
+        if self.doc is None:
+            return True
+        r = QMessageBox.question(
+            self, "Editar nueva hoja",
+            "Se cerrará la hoja actual y se perderán los datos no guardados.\n"
+            "¿Desea continuar?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+        )
+        return r == QMessageBox.Yes
+
     def abrir(self):
+        if not self._confirmar_descartar():
+            return
         ruta, _ = QFileDialog.getOpenFileName(
             self, "Seleccionar hoja SDS", "",
             "PDF e imágenes (*.pdf *.png *.jpg *.jpeg)"
         )
         if not ruta:
             return
-        self.abrir_ruta(ruta)
+        self._cargar(ruta)
 
     def abrir_ruta(self, ruta):
+        if self._confirmar_descartar():
+            self._cargar(ruta)
+
+    def _cargar(self, ruta):
         try:
             doc = fitz.open(ruta)
             if not doc.is_pdf:
@@ -348,10 +370,14 @@ class SDSEditor(QWidget):
         except Exception as ex:
             QMessageBox.critical(self, "Error", f"No se pudo abrir el archivo:\n{ex}")
             return
+        anterior = self.doc
         self.doc = doc
         self.ruta_origen = ruta
         self.escenas = {}
+        self.b_nueva.setEnabled(True)
         self.ir_pagina(0)
+        if anterior is not None:
+            anterior.close()
 
     def _escena(self, idx):
         if idx not in self.escenas:
@@ -359,8 +385,16 @@ class SDSEditor(QWidget):
             pix = pg.get_pixmap(matrix=fitz.Matrix(ZOOM_RENDER, ZOOM_RENDER), alpha=False)
             img = QImage(pix.samples, pix.width, pix.height, pix.stride,
                          QImage.Format_RGB888).copy()
+            borde = QPainter(img)
+            borde.setPen(QPen(QColor("#555555"), 3))
+            borde.drawRect(0, 0, img.width() - 1, img.height() - 1)
+            borde.end()
             sc = Escena()
             fondo = QGraphicsPixmapItem(QPixmap.fromImage(img))
+            sombra = QGraphicsDropShadowEffect()
+            sombra.setBlurRadius(30)
+            sombra.setOffset(4, 4)
+            fondo.setGraphicsEffect(sombra)
             fondo.setZValue(-1000)
             sc.addItem(fondo)
             sc.fondo = fondo
@@ -583,13 +617,20 @@ class SDSEditor(QWidget):
                 sc.fondo.setVisible(True)
                 sc.exportando = False
 
+                pagina = salida[idx]
+                rot = pagina.rotation
+                if rot:
+                    # La capa se dibujó con la página ya girada; hay que devolverla a su orientación base
+                    img = img.transformed(QTransform().rotate(-rot), Qt.SmoothTransformation)
+                    pagina.set_rotation(0)
                 datos = QByteArray()
                 buf = QBuffer(datos)
                 buf.open(QIODevice.WriteOnly)
                 img.save(buf, "PNG")
                 buf.close()
-                pagina = salida[idx]
                 pagina.insert_image(pagina.rect, stream=bytes(datos.data()), overlay=True)
+                if rot:
+                    pagina.set_rotation(rot)
 
             salida.save(destino, garbage=3, deflate=True)
             salida.close()
